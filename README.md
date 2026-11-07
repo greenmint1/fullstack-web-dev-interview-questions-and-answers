@@ -1,0 +1,157 @@
+# Full Stack Web Dev Interview Questions and Answers
+
+_Last updated: November 6, 2026_
+
+A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
+
+You can use it to prepare for interviews, to check what you know, or as a quick reference.
+
+> ⚠️ The questions and answers in this repo were generated with Claude Code. They can contain mistakes or outdated information, so double check anything important with the official docs.
+
+## Topics
+
+### AI Engineering
+
+#### APIs
+
+- [Chrome Built-in AI APIs](docs/ai-engineering/apis/chrome-built-in-ai-apis.md)
+- [Claude API](docs/ai-engineering/apis/claude-api.md)
+- [OpenAI API](docs/ai-engineering/apis/openai-api.md)
+
+#### Agents
+
+- [AI Agent Architecture](docs/ai-engineering/agents/ai-agent-architecture.md)
+- [MCP (Model Context Protocol)](docs/ai-engineering/agents/mcp.md)
+- [WebMCP](docs/ai-engineering/agents/web-mcp.md)
+
+#### RAG
+
+- [RAG Architecture](docs/ai-engineering/rag/rag-architecture.md)
+
+#### Tools
+
+- [AI Workflow and Developer Experience](docs/ai-engineering/tools/ai-workflow-and-developer-experience.md)
+- [Claude Code](docs/ai-engineering/tools/claude-code.md)
+
+#### Other
+
+- [AI Security](docs/ai-engineering/other/ai-security.md)
+- [Debugging](docs/ai-engineering/other/debugging.md)
+- [LLM Cost & Latency](docs/ai-engineering/other/llm-cost-and-latency.md)
+
+---
+
+### Back End
+
+#### Cloud
+
+- [AWS](docs/back-end/cloud/aws.md)
+- [Azure](docs/back-end/cloud/azure.md)
+- [Docker](docs/back-end/cloud/docker.md)
+- [GCP (Google Cloud)](docs/back-end/cloud/gcp.md)
+- [GitHub Actions](docs/back-end/cloud/github-actions.md)
+- [Kubernetes](docs/back-end/cloud/kubernetes.md)
+- [Terraform](docs/back-end/cloud/terraform.md)
+
+#### Languages
+
+- [GraphQL](docs/back-end/languages/graphql.md)
+- [Node.js](docs/back-end/languages/nodejs.md)
+- [Node.js Event Loop](docs/back-end/languages/nodejs-event-loop.md)
+- [Node.js Microservices](docs/back-end/languages/nodejs-microservices.md)
+- [SQL](docs/back-end/languages/sql.md)
+
+#### Frameworks
+
+- [Express.js](docs/back-end/frameworks/express-js.md)
+- [Fastify](docs/back-end/frameworks/fastify.md)
+- [NestJS](docs/back-end/frameworks/nestjs.md)
+
+#### Libs
+
+- [Mongoose](docs/back-end/libs/mongoose.md)
+- [Prisma ORM](docs/back-end/libs/prisma-orm.md)
+
+#### Other
+
+- [Apache Kafka](docs/back-end/other/apache-kafka.md)
+- [Debugging](docs/back-end/other/debugging.md)
+- [DynamoDB](docs/back-end/other/dynamodb.md)
+- [MongoDB](docs/back-end/other/mongodb.md)
+- [RabbitMQ](docs/back-end/other/rabbitmq.md)
+- [Redis](docs/back-end/other/redis.md)
+- [Security](docs/back-end/other/security.md)
+
+---
+
+### Front End
+
+#### Languages
+
+- [CSS](docs/front-end/languages/css.md)
+- [HTML](docs/front-end/languages/html.md)
+- [JavaScript](docs/front-end/languages/javascript.md)
+- [JavaScript Algorithms](docs/front-end/languages/javascript-algorithms.md)
+- [JavaScript Data Structures](docs/front-end/languages/javascript-data-structures.md)
+- [JavaScript Design Patterns](docs/front-end/languages/javascript-design-patterns.md)
+- [TypeScript](docs/front-end/languages/typescript.md)
+- [WebAssembly (WASM)](docs/front-end/languages/web-assembly.md)
+
+#### Frameworks
+
+- [Angular](docs/front-end/frameworks/angular.md)
+- [Angular Micro Frontend](docs/front-end/frameworks/angular-microfrontend.md)
+- [Next.js](docs/front-end/frameworks/nextjs.md)
+- [React](docs/front-end/frameworks/react.md)
+- [React Micro Frontend](docs/front-end/frameworks/react-microfrontend.md)
+- [React Native](docs/front-end/frameworks/react-native.md)
+- [Tailwind CSS](docs/front-end/frameworks/tailwindcss.md)
+- [Tailwind CSS Responsive UI](docs/front-end/frameworks/tailwindcss-responsive-ui.md)
+
+#### Libs
+
+- [Angular Popular Libs](docs/front-end/libs/angular-popular-libs.md)
+- [esbuild](docs/front-end/libs/esbuild.md)
+- [NgRx](docs/front-end/libs/ngrx.md)
+- [React Popular Libs](docs/front-end/libs/react-popular-libs.md)
+- [React Testing](docs/front-end/libs/react-testing.md)
+- [Redux Toolkit](docs/front-end/libs/redux-toolkit.md)
+- [Rollup](docs/front-end/libs/rollup.md)
+- [Storybook](docs/front-end/libs/storybook.md)
+- [Three.js](docs/front-end/libs/three-js.md)
+- [Webpack](docs/front-end/libs/webpack.md)
+- [Zustand](docs/front-end/libs/zustand.md)
+
+#### Other
+
+- [Browser Event Loop](docs/front-end/other/browser-event-loop.md)
+- [Chrome DevTools](docs/front-end/other/chrome-devtools.md)
+- [Debugging](docs/front-end/other/debugging.md)
+- [How Google Chrome Browser Works](docs/front-end/other/how-google-chrome-browser-works.md)
+- [Responsive UI](docs/front-end/other/responsive-ui.md)
+- [Security](docs/front-end/other/security.md)
+- [SEO (Search Engine Optimization)](docs/front-end/other/seo.md)
+- [Web Vitals](docs/front-end/other/web-vitals.md)
+
+---
+
+### Mix
+
+- [CI/CD Pipelines](docs/mix/ci-cd-pipelines.md)
+- [Cypress](docs/mix/cypress.md)
+- [Design Patterns and System Architecture](docs/mix/design-patterns-system-architecture.md)
+- [Git](docs/mix/git.md)
+- [HTTP Networking](docs/mix/http-networking.md)
+- [Linux Bash](docs/mix/linux-bash.md)
+- [Web Security (OWASP)](docs/mix/web-security-owasp.md)
+
+---
+
+### Optimization
+
+- [Angular](docs/optimization/angular.md)
+- [Full Stack Web App Optimization and Debugging](docs/optimization/fullstack-web-app-optimization-and-debugging.md)
+- [MongoDB](docs/optimization/mongodb.md)
+- [Node.js](docs/optimization/nodejs.md)
+- [React](docs/optimization/react.md)
+- [SQL](docs/optimization/sql.md)
