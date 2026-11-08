@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 7, 2026_
+_Last updated: November 8, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -156,3 +156,20 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Node.js](docs/optimization/nodejs.md)
 - [React](docs/optimization/react.md)
 - [SQL](docs/optimization/sql.md)
+
+---
+
+## Claude Code setup
+
+This repo includes a Claude Code setup that keeps token costs down, based on the `claude-code-best-practices` starter kit. Run `./claude/scripts/install.sh` once per clone.
+
+| Path                     | Purpose                                                                                                                      |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `CLAUDE.md`              | Project rules loaded every session                                                                                           |
+| `.claude/settings.json`  | Effort, Haiku subagents, output caps, deny rules, cost status line, Prettier on Stop                                         |
+| `.claude/hooks/`         | Filters noisy test/lint/build output; blocks whole-file reads of files over ~10K tokens                                      |
+| `.claude/skills/`        | `interview-qa`, `interview-qa-review`, `handoff`, `pr-review`, `compress-claude-md`, `retro`, `implement-spec`, `migrations` |
+| `.claude/agents/`        | `code-reviewer`, `oss-researcher` and `test-runner` subagents                                                                |
+| `.githooks/`, `.github/` | Pre-commit and CI checks for the token budget and the size of `CLAUDE.md` (`docs/` is exempt)                                |
+| `claude/`                | Install, audit and test scripts; [cost-saving habits](claude/docs/habits.md); [CLI over MCP](claude/docs/cli-over-mcp.md)    |
+| `specs/`                 | Spec-driven development templates: principles, roadmap, backlog, progress, specs, ADRs                                       |
