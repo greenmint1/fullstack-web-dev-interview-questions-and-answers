@@ -18,13 +18,14 @@ Create one markdown file containing 450 interview questions and answers for the 
 - If the README gets a new subcategory (or a category gets subcategories for the first time), create the matching subfolder, move the files listed under it there, and update their README links so the folders and the README stay in sync.
 - Name the file in lowercase kebab-case: `dynamodb.md`, `react-unit-testing.md`, `redux-toolkit.md`.
 - Before writing, check whether the file already exists. If it does, ask the user whether to overwrite it or stop.
-- Look at one existing file in the repo (for example `docs/front-end/frameworks/angular.md`) and match its tone and formatting.
+- Steps 3-4 fully define the file format, so don't read whole files to learn it. To match tone, read only the first questions of one existing file (for example `grep -n -A12 '^## 1:' docs/front-end/frameworks/angular.md | head -40`). To find where the README entry goes, `grep` the README for the target `###`/`####` section instead of reading the whole file.
 
 ## Step 2: Verify the current state of the technology
 
 Do not rely on memory alone.
 
 - Use web search or the official documentation to find the latest stable version and its current APIs, features, and best practices.
+- If this takes more than a few searches or page fetches, delegate it to a `general-purpose` subagent and have it return a compact fact sheet (current version, SDK/package names, current APIs with exact names, what is deprecated or removed, source URLs) instead of fetching dozens of pages into the main conversation. When a docs site redirects to another domain, fetch the target domain directly from then on.
 - Note what is deprecated or removed. Teach the modern approach first. Mention legacy approaches only where candidates will still meet them in real projects, and label them as legacy.
 - Do not invent APIs, flags, or method names. If unsure that something exists, check it or leave it out.
 
@@ -32,7 +33,7 @@ Do not rely on memory alone.
 
 The file must follow this exact structure:
 
-1. `# <Technology> Interview Questions and Answers` as the H1 title.
+1. `# <Technology> Interview Questions and Answers` as the H1 title, then a blank line and `_Last updated: <Month> <Day>, <Year>_` with the current date.
 2. A short intro paragraph (2-4 sentences) stating the question count, the difficulty split, and which version of the technology the answers target.
 3. `## Table of Contents` that lists every question, not just the sections:
    - First, links to the three sections:
@@ -80,9 +81,9 @@ Table of contents anchors follow GitHub's heading slug rules: lowercase, drop ev
 450 Q&As is too large for a single write. Work in batches:
 
 1. Create the file with the title, intro, and the section links of the table of contents.
-2. Append the questions in batches of about 25-50, in numerical order, so the numbering stays continuous.
-3. Once all 450 questions are written, generate the per-question table of contents from the `##` question headings (a short script is the easiest way) and insert it between the section links and the first `#` section header, followed by `---`.
-4. Verify the file: exactly 450 questions, numbered 1-450 with no gaps or duplicates, 150 per section, 450 question links in the table of contents, every link pointing to an existing heading anchor, and all code blocks closed properly.
+2. Append the questions in batches of about 25-50, in numerical order, so the numbering stays continuous. Write each batch with the Write tool to a part file in the scratchpad (`part1.md`, `part2.md`, ...) and join them with `cat`. Don't put large content in `cat <<'EOF'` heredocs: this machine's bash 3.2 refuses or breaks on big heredocs containing backticks.
+3. Once all 450 questions are written, run `python3 .claude/skills/interview-qa/toc.py <file>`. It rebuilds the full table of contents (section links, per-section question links, `---`) and then verifies the file. Don't write your own TOC script.
+4. The same run verifies the file: `_Last updated_` line, exactly 450 questions numbered 1-450 with no gaps or duplicates, each in the right section, 450 question links in the TOC, every link pointing to an existing heading anchor, no backticks in headings, and all code blocks closed. Fix anything it reports and re-run until it prints `OK`. Use `--check` to verify without rebuilding.
 5. Report the file path and a one-line summary when done.
 
 ## Step 7: Register the technology in README.md
@@ -94,7 +95,7 @@ Table of contents anchors follow GitHub's heading slug rules: lowercase, drop ev
 - Keep the existing ordering convention. If the list is alphabetical, insert the entry alphabetically. If it is not sorted, append it at the end of its group.
 - The link must point to the new file's relative path, for example `docs/back-end/other/dynamodb.md`.
 - Do not add a duplicate. If the technology is already listed, update that entry's link instead of adding a second one.
-- Do not change any other part of the README.
+- Do not change any other part of the README, except the `_Last updated_` line: set it to the current date by pattern, not by its expected old value, because other sessions may have changed it already: `sed -i '' "s/^_Last updated: .*_$/_Last updated: $(date '+%B %-d, %Y')_/" README.md`.
 
 ## Step 8: Final check and report
 
