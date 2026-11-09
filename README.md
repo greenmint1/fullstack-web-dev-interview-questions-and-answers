@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 8, 2026_
+_Last updated: November 9, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -9,6 +9,13 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 > ⚠️ The questions and answers in this repo were generated with Claude Code. They can contain mistakes or outdated information, so double check anything important with the official docs.
 
 ## Topics
+
+### Courses
+
+- [Udemy](https://www.udemy.com)
+- [Claude Academy](https://academy.claude.com/courses)
+
+---
 
 ### AI Engineering
 
