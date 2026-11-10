@@ -166,6 +166,14 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 ---
 
+### Best Profiles
+
+- Sarah Drasner [X](https://x.com/sarah_edo), [LinkedIn](https://www.linkedin.com/in/sarahdrasner)
+- Matt Pocock [X](https://x.com/mattpocockuk), [LinkedIn](https://uk.linkedin.com/in/mapocock)
+- Addy Osmani [X](https://x.com/addyosmani), [LinkedIn](https://www.linkedin.com/in/addyosmani)
+
+---
+
 ## Claude Code setup
 
 This repo includes a Claude Code setup that keeps token costs down, based on the `claude-code-best-practices` starter kit. Run `./claude/scripts/install.sh` once per clone.
