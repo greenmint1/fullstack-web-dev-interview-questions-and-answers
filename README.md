@@ -171,6 +171,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - Sarah Drasner [X](https://x.com/sarah_edo), [LinkedIn](https://www.linkedin.com/in/sarahdrasner)
 - Matt Pocock [X](https://x.com/mattpocockuk), [LinkedIn](https://uk.linkedin.com/in/mapocock)
 - Addy Osmani [X](https://x.com/addyosmani), [LinkedIn](https://www.linkedin.com/in/addyosmani)
+- Ram Maheshwari [X](https://x.com/rammcodes), [LinkedIn](https://in.linkedin.com/in/rammcodes)
 
 ---
 
