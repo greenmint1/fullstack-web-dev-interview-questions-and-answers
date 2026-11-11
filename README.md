@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 9, 2026_
+_Last updated: November 11, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -31,6 +31,12 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [AI Agent Architecture](docs/ai-engineering/agents/ai-agent-architecture.md)
 - [MCP (Model Context Protocol)](docs/ai-engineering/agents/mcp.md)
 - [WebMCP](docs/ai-engineering/agents/web-mcp.md)
+
+#### Frameworks
+
+- [AI Agent Frameworks](docs/ai-engineering/frameworks/ai-agent-frameworks.md)
+- [LangChain](docs/ai-engineering/frameworks/langchain.md)
+- [Vercel AI SDK](docs/ai-engineering/frameworks/vercel-ai-sdk.md)
 
 #### RAG
 
