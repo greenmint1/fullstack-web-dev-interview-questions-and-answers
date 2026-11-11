@@ -51,7 +51,9 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 - [AI Security](docs/ai-engineering/other/ai-security.md)
 - [Debugging](docs/ai-engineering/other/debugging.md)
+- [Fine-Tuning LLMs](docs/ai-engineering/other/fine-tuning-llms.md)
 - [LLM Cost & Latency](docs/ai-engineering/other/llm-cost-and-latency.md)
+- [Prompt Engineering Patterns](docs/ai-engineering/other/prompt-engineering-patterns.md)
 
 ---
 
