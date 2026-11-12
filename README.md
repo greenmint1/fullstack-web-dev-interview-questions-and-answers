@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 11, 2026_
+_Last updated: November 12, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -24,6 +24,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Chrome Built-in AI APIs](docs/ai-engineering/apis/chrome-built-in-ai-apis.md)
 - [Claude API](docs/ai-engineering/apis/claude-api.md)
 - [Gemini API](docs/ai-engineering/apis/gemini-api.md)
+- [Multimodal AI](docs/ai-engineering/apis/multimodal-ai.md)
 - [OpenAI API](docs/ai-engineering/apis/openai-api.md)
 
 #### Agents
@@ -53,7 +54,10 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Debugging](docs/ai-engineering/other/debugging.md)
 - [Fine-Tuning LLMs](docs/ai-engineering/other/fine-tuning-llms.md)
 - [LLM Cost & Latency](docs/ai-engineering/other/llm-cost-and-latency.md)
+- [Local and Self-Hosted Models](docs/ai-engineering/other/local-and-self-hosted-models.md)
+- [On-Device Models on a Laptop](docs/ai-engineering/other/on-device-models-on-a-laptop.md)
 - [Prompt Engineering Patterns](docs/ai-engineering/other/prompt-engineering-patterns.md)
+- [Structured Output & Tool Calling](docs/ai-engineering/other/structured-output-and-tool-calling.md)
 
 ---
 
