@@ -63,7 +63,7 @@ Answer text.
 Answer text, with a code example if useful.
 ```
 
-Table of contents anchors follow GitHub's heading slug rules: lowercase, drop every character that isn't a letter, number, underscore, hyphen or space, then turn each space into a hyphen. For example, `## 12: How does Object.groupBy work?` becomes `#12-how-does-objectgroupby-work`. Keep question headings free of backticks and markdown formatting so the link text and anchors stay clean.
+Table of contents anchors follow GitHub's heading slug rules: lowercase, drop every character that isn't a letter, number, underscore, hyphen or space, then turn each space into a hyphen. For example, `## 12: How does Object.groupBy work?` becomes `#12-how-does-objectgroupby-work`. Keep question headings free of backticks and markdown formatting so the link text and anchors stay clean. Avoid names wrapped in double underscores too: Prettier rewrites `__proto__` as `**proto**`, so write "the proto key" instead (a one-sided prefix like `__Host-` is fine). Square brackets (`[hidden]`, `[]`) are fine.
 
 ## Step 5: Content rules
 

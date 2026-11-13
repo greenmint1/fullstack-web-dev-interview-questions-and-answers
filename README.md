@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 12, 2026_
+_Last updated: November 13, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -66,6 +66,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 #### Cloud
 
 - [AWS](docs/back-end/cloud/aws.md)
+- [AWS Security](docs/back-end/cloud/aws-security.md)
 - [Azure](docs/back-end/cloud/azure.md)
 - [Docker](docs/back-end/cloud/docker.md)
 - [GCP (Google Cloud)](docs/back-end/cloud/gcp.md)
@@ -79,6 +80,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Node.js](docs/back-end/languages/nodejs.md)
 - [Node.js Event Loop](docs/back-end/languages/nodejs-event-loop.md)
 - [Node.js Microservices](docs/back-end/languages/nodejs-microservices.md)
+- [Node.js Security](docs/back-end/languages/nodejs-security.md)
 - [SQL](docs/back-end/languages/sql.md)
 
 #### Frameworks
@@ -86,6 +88,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Express.js](docs/back-end/frameworks/express-js.md)
 - [Fastify](docs/back-end/frameworks/fastify.md)
 - [NestJS](docs/back-end/frameworks/nestjs.md)
+- [NestJS Security](docs/back-end/frameworks/nestjs-security.md)
 
 #### Libs
 
@@ -121,10 +124,12 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 - [Angular](docs/front-end/frameworks/angular.md)
 - [Angular Micro Frontend](docs/front-end/frameworks/angular-microfrontend.md)
+- [Angular Security](docs/front-end/frameworks/angular-security.md)
 - [Next.js](docs/front-end/frameworks/nextjs.md)
 - [React](docs/front-end/frameworks/react.md)
 - [React Micro Frontend](docs/front-end/frameworks/react-microfrontend.md)
 - [React Native](docs/front-end/frameworks/react-native.md)
+- [React Security](docs/front-end/frameworks/react-security.md)
 - [Tailwind CSS](docs/front-end/frameworks/tailwindcss.md)
 - [Tailwind CSS Responsive UI](docs/front-end/frameworks/tailwindcss-responsive-ui.md)
 

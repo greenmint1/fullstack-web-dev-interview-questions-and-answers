@@ -118,7 +118,8 @@ def check(path):
             problems.append(f"questions {wrong[:10]} are not under '# {name}'")
 
     anchors = {slug(h) for _, h in qs} | {slug(name) for name, _, _ in SECTIONS}
-    toc_links = re.findall(r"^- \[[^\]]*\]\(#([^)]+)\)", "\n".join(lines[:start]), re.M)
+    # Greedy link text: headings may contain [brackets], e.g. "[hidden]" or "[]".
+    toc_links = re.findall(r"^- \[.*\]\(#([^)]+)\)$", "\n".join(lines[:start]), re.M)
     q_links = [a for a in toc_links if re.match(r"\d+-", a)]
     if len(q_links) != TOTAL:
         problems.append(f"TOC has {len(q_links)} question links, expected {TOTAL}")
@@ -127,6 +128,8 @@ def check(path):
         problems.append(f"TOC links with no matching heading: {broken[:10]}")
     if any("`" in h for _, h in qs):
         problems.append("question headings contain backticks")
+    if any("**" in h for _, h in qs):
+        problems.append("question headings contain ** (Prettier turns __x__ into bold)")
 
     if problems:
         print(f"FAIL {path}")
