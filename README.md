@@ -74,6 +74,15 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Kubernetes](docs/back-end/cloud/kubernetes.md)
 - [Terraform](docs/back-end/cloud/terraform.md)
 
+#### DB
+
+- [DynamoDB](docs/back-end/db/dynamodb.md)
+- [MongoDB](docs/back-end/db/mongodb.md)
+- [Mongoose](docs/back-end/db/mongoose.md)
+- [Prisma ORM](docs/back-end/db/prisma-orm.md)
+- [Redis](docs/back-end/db/redis.md)
+- [SQL](docs/back-end/db/sql.md)
+
 #### Languages
 
 - [GraphQL](docs/back-end/languages/graphql.md)
@@ -81,7 +90,6 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Node.js Event Loop](docs/back-end/languages/nodejs-event-loop.md)
 - [Node.js Microservices](docs/back-end/languages/nodejs-microservices.md)
 - [Node.js Security](docs/back-end/languages/nodejs-security.md)
-- [SQL](docs/back-end/languages/sql.md)
 
 #### Frameworks
 
@@ -92,17 +100,11 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 #### Libs
 
-- [Mongoose](docs/back-end/libs/mongoose.md)
-- [Prisma ORM](docs/back-end/libs/prisma-orm.md)
-
 #### Other
 
 - [Apache Kafka](docs/back-end/other/apache-kafka.md)
 - [Debugging](docs/back-end/other/debugging.md)
-- [DynamoDB](docs/back-end/other/dynamodb.md)
-- [MongoDB](docs/back-end/other/mongodb.md)
 - [RabbitMQ](docs/back-end/other/rabbitmq.md)
-- [Redis](docs/back-end/other/redis.md)
 - [Security](docs/back-end/other/security.md)
 
 ---
