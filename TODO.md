@@ -220,7 +220,7 @@ Topics to add to `docs/`, grouped by folder. Check off each one once its Q&A fil
 
 - [ ] Docker for developers
 - [ ] System design interviews
-- [ ] Clean code and SOLID
+- [x] Clean code and SOLID
 - [ ] Data structures and algorithms (language-agnostic)
 - [ ] Testing strategy (unit, integration, e2e, contract)
 - [ ] Agile and Scrum

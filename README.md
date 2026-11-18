@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 17, 2026_
+_Last updated: November 18, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -114,6 +114,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 #### Languages
 
 - [CSS](docs/front-end/languages/css.md)
+- [CSS Animations](docs/front-end/languages/css-animations.md)
 - [HTML](docs/front-end/languages/html.md)
 - [JavaScript](docs/front-end/languages/javascript.md)
 - [JavaScript Algorithms](docs/front-end/languages/javascript-algorithms.md)
@@ -165,6 +166,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 ### Mix
 
 - [CI/CD Pipelines](docs/mix/ci-cd-pipelines.md)
+- [Clean Code and SOLID](docs/mix/clean-code-and-solid.md)
 - [Cypress](docs/mix/cypress.md)
 - [Design Patterns and System Architecture](docs/mix/design-patterns-system-architecture.md)
 - [Git](docs/mix/git.md)
