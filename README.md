@@ -10,13 +10,6 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 ## Topics
 
-### Courses
-
-- [Udemy](https://www.udemy.com)
-- [Claude Academy](https://academy.claude.com/courses)
-
----
-
 ### AI Engineering
 
 #### APIs
@@ -194,6 +187,13 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Node.js](docs/optimization/nodejs.md)
 - [React](docs/optimization/react.md)
 - [SQL](docs/optimization/sql.md)
+
+---
+
+### Courses
+
+- [Udemy](https://www.udemy.com)
+- [Claude Academy](https://academy.claude.com/courses)
 
 ---
 
