@@ -129,8 +129,7 @@ Topics to add to `docs/`, grouped by folder. Check off each one once its Q&A fil
 - [ ] Java
 - [ ] C# / .NET
 - [ ] Rust
-- [ ] PHP
-- [ ] Node.js streams and buffers
+- [x] Node.js streams and buffers
 - [ ] Node.js worker threads and clustering
 - [ ] SQL window functions and CTEs
 - [ ] Python asyncio
@@ -151,7 +150,7 @@ Topics to add to `docs/`, grouped by folder. Check off each one once its Q&A fil
 
 ### other
 
-- [ ] Caching strategies
+- [x] Caching strategies
 - [ ] Rate limiting and throttling
 - [ ] API versioning and design
 - [ ] Event-driven architecture and CQRS
@@ -160,7 +159,7 @@ Topics to add to `docs/`, grouped by folder. Check off each one once its Q&A fil
 - [ ] File uploads and object storage (S3)
 - [ ] Logging, monitoring and alerting
 - [ ] Webhooks
-- [ ] Payments integration (Stripe)
+- [x] Payments integration (Stripe)
 
 ## Front-end
 

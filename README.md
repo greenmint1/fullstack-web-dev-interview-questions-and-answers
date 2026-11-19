@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 18, 2026_
+_Last updated: November 19, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -50,6 +50,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 #### Other
 
+- [AI Code Review Practices](docs/ai-engineering/other/ai-code-review-practices.md)
 - [AI Security](docs/ai-engineering/other/ai-security.md)
 - [Debugging](docs/ai-engineering/other/debugging.md)
 - [Fine-Tuning LLMs](docs/ai-engineering/other/fine-tuning-llms.md)
@@ -90,6 +91,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Node.js Event Loop](docs/back-end/languages/nodejs-event-loop.md)
 - [Node.js Microservices](docs/back-end/languages/nodejs-microservices.md)
 - [Node.js Security](docs/back-end/languages/nodejs-security.md)
+- [Node.js Streams and Buffers](docs/back-end/languages/nodejs-streams-and-buffers.md)
 
 #### Frameworks
 
@@ -103,7 +105,10 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 #### Other
 
 - [Apache Kafka](docs/back-end/other/apache-kafka.md)
+- [Caching Strategies](docs/back-end/other/caching-strategies.md)
 - [Debugging](docs/back-end/other/debugging.md)
+- [Event-Driven Architecture and CQRS](docs/back-end/other/event-driven-architecture-and-cqrs.md)
+- [Payments Integration (Stripe)](docs/back-end/other/payments-integration-stripe.md)
 - [RabbitMQ](docs/back-end/other/rabbitmq.md)
 - [Security](docs/back-end/other/security.md)
 
@@ -167,6 +172,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 - [CI/CD Pipelines](docs/mix/ci-cd-pipelines.md)
 - [Clean Code and SOLID](docs/mix/clean-code-and-solid.md)
+- [Code Review Practices](docs/mix/code-review-practices.md)
 - [Cypress](docs/mix/cypress.md)
 - [Design Patterns and System Architecture](docs/mix/design-patterns-system-architecture.md)
 - [Git](docs/mix/git.md)
