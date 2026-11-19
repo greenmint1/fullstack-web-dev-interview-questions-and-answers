@@ -18,6 +18,7 @@ Create one markdown file containing 450 interview questions and answers for the 
 - If the README gets a new subcategory (or a category gets subcategories for the first time), create the matching subfolder, move the files listed under it there, and update their README links so the folders and the README stay in sync.
 - Name the file in lowercase kebab-case: `dynamodb.md`, `react-unit-testing.md`, `redux-toolkit.md`.
 - Before writing, check whether the file already exists. If it does, ask the user whether to overwrite it or stop.
+- Always write in plain, simple words so the file doesn't read as AI-generated, even if the user doesn't ask. Avoid words like delve, crucial, leverage, seamless, comprehensive, furthermore, moreover, and em dashes. `toc.py` (Step 6) flags these, so don't write your own grep for them.
 - Steps 3-4 fully define the file format, so don't read whole files to learn it. To match tone, read only the first questions of one existing file (for example `grep -n -A12 '^## 1:' docs/front-end/frameworks/angular.md | head -40`). To find where the README entry goes, `grep` the README for the target `###`/`####` section instead of reading the whole file.
 
 ## Step 2: Verify the current state of the technology
@@ -97,7 +98,11 @@ Table of contents anchors follow GitHub's heading slug rules: lowercase, drop ev
 - Do not add a duplicate. If the technology is already listed, update that entry's link instead of adding a second one.
 - Do not change any other part of the README, except the `_Last updated_` line: set it to the current date by pattern, not by its expected old value, because other sessions may have changed it already: `sed -i '' "s/^_Last updated: .*_$/_Last updated: $(date '+%B %-d, %Y')_/" README.md`.
 
-## Step 8: Final check and report
+## Step 8: Check off TODO.md
+
+If `TODO.md` lists the topic, change its `- [ ]` to `- [x]` (for example `sed -i '' 's/^- \[ \] Caching strategies$/- [x] Caching strategies/' TODO.md`). Leave everything else in `TODO.md` alone. If the topic isn't listed, skip this step.
+
+## Step 9: Final check and report
 
 - Confirm the README entry exists, appears exactly once, and its link path matches the actual file path.
 - Report back with the Q&A file path, the README line that was added or changed, and a one-line summary.

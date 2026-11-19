@@ -19,6 +19,15 @@ SECTIONS = [
 ]
 TOTAL = 450
 
+# Words that make text read as AI-generated. Checked as whole words in prose,
+# ignoring code blocks, `inline code` and "quoted strings".
+AI_WORDS = re.compile(
+    r"\b(delve[sd]?|delving|crucial(ly)?|leverag(e|es|ed|ing)|seamless(ly)?|"
+    r"comprehensive(ly)?|furthermore|moreover|in essence|game[- ]chang\w*|"
+    r"plethora|tapestry|underscore[sd]? the importance)\b|—",
+    re.I,
+)
+
 
 def slug(heading):
     """GitHub heading anchor: lowercase, drop punctuation, spaces to hyphens."""
@@ -130,6 +139,13 @@ def check(path):
         problems.append("question headings contain backticks")
     if any("**" in h for _, h in qs):
         problems.append("question headings contain ** (Prettier turns __x__ into bold)")
+
+    fancy = []
+    for i, l in outside_fences(lines):
+        prose = re.sub(r'`[^`]*`|"[^"]*"', "", l)
+        fancy += [f"{i + 1}: {m.group(0)}" for m in AI_WORDS.finditer(prose)]
+    if fancy:
+        problems.append(f"AI-sounding words (rewrite in plain words): {fancy[:15]}")
 
     if problems:
         print(f"FAIL {path}")

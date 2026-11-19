@@ -39,6 +39,10 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [LangChain](docs/ai-engineering/frameworks/langchain.md)
 - [Vercel AI SDK](docs/ai-engineering/frameworks/vercel-ai-sdk.md)
 
+#### Front End
+
+- [Agentic UI](docs/ai-engineering/front-end/agentic-ui.md)
+
 #### RAG
 
 - [RAG Architecture](docs/ai-engineering/rag/rag-architecture.md)
