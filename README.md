@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 19, 2026_
+_Last updated: November 24, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -137,6 +137,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [React Security](docs/front-end/frameworks/react-security.md)
 - [Tailwind CSS](docs/front-end/frameworks/tailwindcss.md)
 - [Tailwind CSS Responsive UI](docs/front-end/frameworks/tailwindcss-responsive-ui.md)
+- [Translate Angular into React, Next.js and Vue.js](docs/front-end/frameworks/translate-angular-into-react-nextjs-vuejs.md)
 
 #### Libs
 
