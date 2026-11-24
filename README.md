@@ -71,6 +71,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [GitHub Actions](docs/back-end/cloud/github-actions.md)
 - [Kubernetes](docs/back-end/cloud/kubernetes.md)
 - [Terraform](docs/back-end/cloud/terraform.md)
+- [Translate AWS into Azure, GCP and Cloudflare](docs/back-end/cloud/translate-aws-into-azure-gcp-cloudflare.md)
 
 #### DB
 
