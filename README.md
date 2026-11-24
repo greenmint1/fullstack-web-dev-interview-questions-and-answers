@@ -89,6 +89,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Node.js Microservices](docs/back-end/languages/nodejs-microservices.md)
 - [Node.js Security](docs/back-end/languages/nodejs-security.md)
 - [Node.js Streams and Buffers](docs/back-end/languages/nodejs-streams-and-buffers.md)
+- [Translate Node.js into Python](docs/back-end/languages/translate-nodejs-into-python.md)
 
 #### Frameworks
 
