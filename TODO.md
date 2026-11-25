@@ -130,7 +130,7 @@ Topics to add to `docs/`, grouped by folder. Check off each one once its Q&A fil
 - [ ] C# / .NET
 - [ ] Rust
 - [x] Node.js streams and buffers
-- [ ] Node.js worker threads and clustering
+- [x] Node.js worker threads and clustering
 - [ ] SQL window functions and CTEs
 - [ ] Python asyncio
 - [ ] gRPC and Protocol Buffers
@@ -239,4 +239,4 @@ Topics to add to `docs/`, grouped by folder. Check off each one once its Q&A fil
 - [ ] Docker images
 - [ ] Kubernetes resource tuning
 - [ ] AWS cost optimization
-- [ ] Load testing (k6, Artillery)
+- [x] Load testing (k6, Artillery)

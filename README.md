@@ -76,6 +76,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 #### DB
 
 - [DynamoDB](docs/back-end/db/dynamodb.md)
+- [DynamoDB DAX](docs/back-end/db/dynamodb-dax.md)
 - [MongoDB](docs/back-end/db/mongodb.md)
 - [Mongoose](docs/back-end/db/mongoose.md)
 - [Prisma ORM](docs/back-end/db/prisma-orm.md)
@@ -90,6 +91,8 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Node.js Microservices](docs/back-end/languages/nodejs-microservices.md)
 - [Node.js Security](docs/back-end/languages/nodejs-security.md)
 - [Node.js Streams and Buffers](docs/back-end/languages/nodejs-streams-and-buffers.md)
+- [Node.js Worker Threads and Clustering](docs/back-end/languages/nodejs-worker-threads-and-clustering.md)
+- [Python](docs/back-end/languages/python.md)
 - [Translate Node.js into Python](docs/back-end/languages/translate-nodejs-into-python.md)
 
 #### Frameworks
@@ -101,6 +104,8 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 #### Libs
 
+- [BullMQ](docs/back-end/libs/bullmq.md)
+
 #### Other
 
 - [Apache Kafka](docs/back-end/other/apache-kafka.md)
@@ -110,6 +115,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Payments Integration (Stripe)](docs/back-end/other/payments-integration-stripe.md)
 - [RabbitMQ](docs/back-end/other/rabbitmq.md)
 - [Security](docs/back-end/other/security.md)
+- [Virtual Machine](docs/back-end/other/virtual-machine.md)
 
 ---
 
@@ -155,6 +161,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Storybook](docs/front-end/libs/storybook.md)
 - [TanStack Query](docs/front-end/libs/tan-stack-query.md)
 - [Three.js](docs/front-end/libs/three-js.md)
+- [Turbopack](docs/front-end/libs/turbopack.md)
 - [Webpack](docs/front-end/libs/webpack.md)
 - [Zustand](docs/front-end/libs/zustand.md)
 
@@ -164,10 +171,13 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Chrome DevTools](docs/front-end/other/chrome-devtools.md)
 - [Debugging](docs/front-end/other/debugging.md)
 - [How Google Chrome Browser Works](docs/front-end/other/how-google-chrome-browser-works.md)
+- [Progressive Web Apps & Service Workers](docs/front-end/other/progressive-web-apps-and-service-workers.md)
 - [Responsive UI](docs/front-end/other/responsive-ui.md)
 - [Security](docs/front-end/other/security.md)
 - [SEO (Search Engine Optimization)](docs/front-end/other/seo.md)
+- [Web Accessibility](docs/front-end/other/web-accessibility.md)
 - [Web Vitals](docs/front-end/other/web-vitals.md)
+- [Web Workers & Browser Concurrency](docs/front-end/other/web-workers-and-browser-concurrency.md)
 
 ---
 
@@ -182,6 +192,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Git](docs/mix/git.md)
 - [HTTP Networking](docs/mix/http-networking.md)
 - [Linux Bash](docs/mix/linux-bash.md)
+- [Load Testing (k6, Artillery)](docs/mix/load-testing-k6-artillery.md)
 - [Monorepos](docs/mix/monorepos.md)
 - [Web Security (OWASP)](docs/mix/web-security-owasp.md)
 
