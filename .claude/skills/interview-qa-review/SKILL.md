@@ -54,6 +54,7 @@ Review every question and answer in order, in batches of about 50 so nothing is 
 - **Duplicates:** no question repeats or nearly repeats another question anywhere in the file.
 - **Difficulty placement:** the question sits in the right section. Basic definitions don't belong in Advanced, and internals or architecture questions don't belong in Easy.
 - **Coverage:** note major feature areas of the technology that no question covers.
+- **Example language:** when the programming language for code examples has to be chosen (for example, for Redis, Docker, AWS SDKs, databases or algorithms), examples must use JavaScript and Node.js, unless the topic itself is a specific language (for example, Python or Go). Rewrite examples in other languages to JavaScript and Node.js.
 
 Do not invent APIs or behavior while correcting. If you can't confirm something from documentation, mark it as uncertain in the report instead of guessing.
 

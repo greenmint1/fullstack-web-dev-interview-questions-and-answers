@@ -72,6 +72,7 @@ Table of contents anchors follow GitHub's heading slug rules: lowercase, drop ev
 - **Moderate (151-300):** practical usage, common patterns, configuration, integration with other tools, debugging, and trade-offs.
 - **Advanced (301-450):** internals, architecture, performance tuning, scalability, security, edge cases, design decisions, and scenario-based questions.
 - Add a code example wherever it helps the answer, in fenced code blocks with the correct language tag. Code must be correct, runnable, and use current APIs.
+- When the programming language for code examples has to be chosen (for example, for Redis, Docker, AWS SDKs, databases or algorithms), use JavaScript and Node.js, unless the topic itself is a specific language (for example, Python or Go).
 - Keep answers concise but complete: 2-6 sentences for conceptual answers, plus code where needed.
 - No duplicate or near-duplicate questions. Each question must cover a distinct topic.
 - Cover the technology broadly: every major feature area should appear at least once.
