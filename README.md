@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 24, 2026_
+_Last updated: November 25, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -150,6 +150,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [React Testing](docs/front-end/libs/react-testing.md)
 - [Redux Toolkit](docs/front-end/libs/redux-toolkit.md)
 - [Rollup](docs/front-end/libs/rollup.md)
+- [RxJS](docs/front-end/libs/rxjs.md)
 - [Storybook](docs/front-end/libs/storybook.md)
 - [Three.js](docs/front-end/libs/three-js.md)
 - [Webpack](docs/front-end/libs/webpack.md)
