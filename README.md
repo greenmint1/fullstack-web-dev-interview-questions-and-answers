@@ -186,6 +186,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 ### Optimization
 
 - [Angular](docs/optimization/angular.md)
+- [CSS](docs/optimization/css.md)
 - [Full Stack Web App Optimization and Debugging](docs/optimization/fullstack-web-app-optimization-and-debugging.md)
 - [MongoDB](docs/optimization/mongodb.md)
 - [Node.js](docs/optimization/nodejs.md)
