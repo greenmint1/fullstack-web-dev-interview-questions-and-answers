@@ -144,6 +144,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 #### Libs
 
 - [Angular Popular Libs](docs/front-end/libs/angular-popular-libs.md)
+- [Angular Testing](docs/front-end/libs/angular-testing.md)
 - [esbuild](docs/front-end/libs/esbuild.md)
 - [NgRx](docs/front-end/libs/ngrx.md)
 - [React Popular Libs](docs/front-end/libs/react-popular-libs.md)
@@ -180,6 +181,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Git](docs/mix/git.md)
 - [HTTP Networking](docs/mix/http-networking.md)
 - [Linux Bash](docs/mix/linux-bash.md)
+- [Monorepos](docs/mix/monorepos.md)
 - [Web Security (OWASP)](docs/mix/web-security-owasp.md)
 
 ---

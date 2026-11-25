@@ -1,6 +1,6 @@
 # AWS Certified Developer - Associate Interview Questions and Answers
 
-_Last updated: October 24, 2026_
+_Last updated: November 25, 2026_
 
 Interview questions and answers based on the AWS Certified Developer - Associate (DVA-C02) exam guide. The questions are grouped by the four exam domains, with 50 questions in each:
 
@@ -11,14 +11,14 @@ Interview questions and answers based on the AWS Certified Developer - Associate
 | Deployment                       | 24%            | 101 - 150 |
 | Troubleshooting and Optimization | 18%            | 151 - 200 |
 
-Code examples use the AWS SDK for JavaScript v3, boto3 (Python), the AWS CLI v2, SAM and CloudFormation. Account IDs, ARNs and names in the examples are placeholders.
+Code examples use Node.js with the AWS SDK for JavaScript v3, the AWS CLI v2, SAM and CloudFormation. Account IDs, ARNs and names in the examples are placeholders.
 
 ## Table of Contents
 
 - [Domain 1: Development with AWS Services](#domain-1-development-with-aws-services)
   - [1: What is AWS Lambda and when would you use it?](#1-what-is-aws-lambda-and-when-would-you-use-it)
   - [2: What are the three ways Lambda can be invoked?](#2-what-are-the-three-ways-lambda-can-be-invoked)
-  - [3: What does a Lambda handler look like in Python and Node.js?](#3-what-does-a-lambda-handler-look-like-in-python-and-nodejs)
+  - [3: What does a Lambda handler look like in Node.js?](#3-what-does-a-lambda-handler-look-like-in-nodejs)
   - [4: Why should you create SDK clients and database connections outside the handler?](#4-why-should-you-create-sdk-clients-and-database-connections-outside-the-handler)
   - [5: What are the main Lambda limits a developer should know?](#5-what-are-the-main-lambda-limits-a-developer-should-know)
   - [6: What are Lambda layers?](#6-what-are-lambda-layers)
@@ -255,32 +255,16 @@ aws lambda invoke --function-name orders-api \
   --payload '{"orderId":"o-1"}' response.json
 ```
 
-## 3: What does a Lambda handler look like in Python and Node.js?
+## 3: What does a Lambda handler look like in Node.js?
 
 The handler is the function Lambda calls for each event. It gets the event and a context object.
-
-Python:
-
-```python
-import json
-
-def lambda_handler(event, context):
-    print(f"Request ID: {context.aws_request_id}")
-    print(f"Time left (ms): {context.get_remaining_time_in_millis()}")
-
-    body = json.loads(event.get("body") or "{}")
-    return {
-        "statusCode": 200,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({"received": body}),
-    }
-```
 
 Node.js 22 (ES modules, file named `index.mjs`, handler `index.handler`):
 
 ```javascript
 export const handler = async (event, context) => {
   console.log("Request ID:", context.awsRequestId);
+  console.log("Time left (ms):", context.getRemainingTimeInMillis());
 
   const body = JSON.parse(event.body ?? "{}");
   return {
@@ -297,17 +281,21 @@ In Node.js, use `async` handlers. Callback-based handlers are not supported star
 
 Code outside the handler runs once per execution environment, during the init phase. Lambda reuses the same environment for later invocations (warm starts), so anything you create there is reused too.
 
-```python
-import os
-import boto3
+```javascript
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
-# Runs once per execution environment
-dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(os.environ["TABLE_NAME"])
+// Runs once per execution environment
+const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const TABLE_NAME = process.env.TABLE_NAME;
 
-def lambda_handler(event, context):
-    # Runs on every invocation
-    return table.get_item(Key={"pk": event["id"]}).get("Item")
+export const handler = async (event) => {
+  // Runs on every invocation
+  const { Item } = await ddb.send(
+    new GetCommand({ TableName: TABLE_NAME, Key: { pk: event.id } }),
+  );
+  return Item;
+};
 ```
 
 This saves time on every warm invocation, because creating clients, loading config and opening TCP/TLS connections is slow. Do not store request-specific data (like the current user) in global variables, because the next request in the same environment will see it.
@@ -331,22 +319,22 @@ When a payload is too large, the usual fix is to put the data in S3 and pass a r
 
 ## 6: What are Lambda layers?
 
-A layer is a zip archive with libraries, custom runtimes or other files that you can attach to many functions. Lambda extracts layer content into `/opt`. For Python, files under `python/` in the layer end up on the import path; for Node.js, files under `nodejs/node_modules`.
+A layer is a zip archive with libraries, custom runtimes or other files that you can attach to many functions. Lambda extracts layer content into `/opt`. For Node.js, packages under `nodejs/node_modules` in the layer can be imported by your function; for Python, files under `python/`.
 
 ```bash
-mkdir -p layer/python
-pip install requests -t layer/python
-cd layer && zip -r ../requests-layer.zip . && cd ..
+mkdir -p layer/nodejs
+cd layer/nodejs && npm init -y && npm install zod && cd ../..
+cd layer && zip -r ../zod-layer.zip . && cd ..
 
 aws lambda publish-layer-version \
-  --layer-name requests \
-  --zip-file fileb://requests-layer.zip \
-  --compatible-runtimes python3.13 \
+  --layer-name zod \
+  --zip-file fileb://zod-layer.zip \
+  --compatible-runtimes nodejs22.x \
   --compatible-architectures arm64
 
 aws lambda update-function-configuration \
   --function-name orders-api \
-  --layers arn:aws:lambda:us-east-1:111122223333:layer:requests:1
+  --layers arn:aws:lambda:us-east-1:111122223333:layer:zod:1
 ```
 
 Notes:
@@ -363,26 +351,24 @@ Common options:
 - **SSM Parameter Store** for shared config and **Secrets Manager** for secrets such as database passwords or API keys.
 - **AWS AppConfig** for config that changes at runtime, like feature flags.
 
-```python
-import os
-
-TABLE_NAME = os.environ["TABLE_NAME"]
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+```javascript
+const TABLE_NAME = process.env.TABLE_NAME;
+const LOG_LEVEL = process.env.LOG_LEVEL ?? "INFO";
 ```
 
 For parameters and secrets, the **AWS Parameters and Secrets Lambda Extension** gives you a local HTTP cache, so you do not call the API on every invocation:
 
-```python
-import os
-import json
-import urllib.request
-
-def get_secret(secret_id):
-    url = f"http://localhost:2773/secretsmanager/get?secretId={secret_id}"
-    req = urllib.request.Request(url)
-    req.add_header("X-Aws-Parameters-Secrets-Token", os.environ["AWS_SESSION_TOKEN"])
-    with urllib.request.urlopen(req) as resp:
-        return json.loads(json.loads(resp.read())["SecretString"])
+```javascript
+const getSecret = async (secretId) => {
+  const url = `http://localhost:2773/secretsmanager/get?secretId=${encodeURIComponent(secretId)}`;
+  const resp = await fetch(url, {
+    headers: {
+      "X-Aws-Parameters-Secrets-Token": process.env.AWS_SESSION_TOKEN,
+    },
+  });
+  const { SecretString } = await resp.json();
+  return JSON.parse(SecretString);
+};
 ```
 
 ## 8: What is the Lambda execution environment lifecycle?
@@ -432,20 +418,21 @@ Because an event may be delivered more than once, async handlers should be idemp
 
 Create an event source mapping. Lambda polls the queue and calls your function with a batch (up to 10 messages for FIFO, up to 10,000 for standard queues with a batching window). If the function throws, the whole batch goes back to the queue. To retry only the failed messages, turn on `ReportBatchItemFailures` and return the IDs of the failed messages.
 
-```python
-import json
+```javascript
+export const handler = async (event) => {
+  const failures = [];
+  for (const record of event.Records) {
+    try {
+      const order = JSON.parse(record.body);
+      await processOrder(order);
+    } catch (err) {
+      console.error(`Failed ${record.messageId}:`, err);
+      failures.push({ itemIdentifier: record.messageId });
+    }
+  }
 
-def lambda_handler(event, context):
-    failures = []
-    for record in event["Records"]:
-        try:
-            order = json.loads(record["body"])
-            process_order(order)
-        except Exception as exc:
-            print(f"Failed {record['messageId']}: {exc}")
-            failures.append({"itemIdentifier": record["messageId"]})
-
-    return {"batchItemFailures": failures}
+  return { batchItemFailures: failures };
+};
 ```
 
 SAM config:
@@ -484,14 +471,14 @@ aws lambda create-function-url-config \
 Build an image based on an AWS Lambda base image (or any image that includes the Lambda Runtime Interface Client), push it to Amazon ECR, and create the function from the image.
 
 ```dockerfile
-FROM public.ecr.aws/lambda/python:3.13
+FROM public.ecr.aws/lambda/nodejs:22
 
-COPY requirements.txt ${LAMBDA_TASK_ROOT}
-RUN pip install -r requirements.txt
+COPY package.json package-lock.json ${LAMBDA_TASK_ROOT}/
+RUN npm ci --omit=dev
 
-COPY app.py ${LAMBDA_TASK_ROOT}
+COPY index.mjs ${LAMBDA_TASK_ROOT}/
 
-CMD ["app.lambda_handler"]
+CMD ["index.handler"]
 ```
 
 ```bash
@@ -601,17 +588,16 @@ Browsers block cross-origin calls unless the server returns the right CORS heade
 - **HTTP API**: configure CORS on the API (allowed origins, methods, headers). API Gateway answers the `OPTIONS` preflight for you.
 - **REST API**: enable CORS on the resource, which creates an `OPTIONS` method with a mock integration. With **Lambda proxy integration**, your function must also return the CORS headers on the real responses.
 
-```python
-def lambda_handler(event, context):
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Origin": "https://app.example.com",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization",
-            "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-        },
-        "body": '{"ok": true}',
-    }
+```javascript
+export const handler = async (event) => ({
+  statusCode: 200,
+  headers: {
+    "Access-Control-Allow-Origin": "https://app.example.com",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  },
+  body: JSON.stringify({ ok: true }),
+});
 ```
 
 Remember to redeploy the REST API stage after changing CORS settings.
@@ -645,24 +631,32 @@ Also design the key around your access patterns. In DynamoDB you model the queri
 
 `FilterExpression` is applied after the read, so you still pay for all the items that were read.
 
-```python
-import boto3
-from boto3.dynamodb.conditions import Key, Attr
+```javascript
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
-table = boto3.resource("dynamodb").Table("Orders")
+const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
-resp = table.query(
-    KeyConditionExpression=Key("customerId").eq("c-123")
-    & Key("orderDate").begins_with("2026-10"),
-    FilterExpression=Attr("status").eq("SHIPPED"),
-    ProjectionExpression="orderId, orderDate, total",
-    ScanIndexForward=False,  # newest first
-    Limit=20,
-)
-items = resp["Items"]
+const { Items } = await ddb.send(
+  new QueryCommand({
+    TableName: "Orders",
+    KeyConditionExpression:
+      "customerId = :c AND begins_with(orderDate, :month)",
+    FilterExpression: "#status = :status",
+    ProjectionExpression: "orderId, orderDate, #total",
+    ExpressionAttributeNames: { "#status": "status", "#total": "total" },
+    ExpressionAttributeValues: {
+      ":c": "c-123",
+      ":month": "2026-10",
+      ":status": "SHIPPED",
+    },
+    ScanIndexForward: false, // newest first
+    Limit: 20,
+  }),
+);
 ```
 
-Note: the boto3 `resource` interface still works but AWS does not add new features to it. Using the `client` interface is also fine and is the only option for new APIs.
+Note: `DynamoDBDocumentClient` from `@aws-sdk/lib-dynamodb` converts plain JavaScript values to and from DynamoDB attribute values (`{ S: "..." }`). With the low-level `DynamoDBClient` you write the typed attribute values yourself. `status` and `total` are DynamoDB reserved words, so they need `ExpressionAttributeNames`.
 
 ## 23: What is the difference between an LSI and a GSI?
 
@@ -705,31 +699,37 @@ A conditional write only succeeds if a condition on the existing item is true. I
 
 Optimistic locking uses a version number: read the item, then update only if the version is still the same.
 
-```python
-import boto3
-from botocore.exceptions import ClientError
+```javascript
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 
-table = boto3.resource("dynamodb").Table("Products")
+const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
-def update_price(product_id, new_price, expected_version):
-    try:
-        table.update_item(
-            Key={"productId": product_id},
-            UpdateExpression="SET price = :p, version = version + :one",
-            ConditionExpression="version = :expected",
-            ExpressionAttributeValues={
-                ":p": new_price,
-                ":one": 1,
-                ":expected": expected_version,
-            },
-        )
-    except ClientError as e:
-        if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
-            raise RuntimeError("Item was changed by someone else, reload and retry")
-        raise
+const updatePrice = async (productId, newPrice, expectedVersion) => {
+  try {
+    await ddb.send(
+      new UpdateCommand({
+        TableName: "Products",
+        Key: { productId },
+        UpdateExpression: "SET price = :p, version = version + :one",
+        ConditionExpression: "version = :expected",
+        ExpressionAttributeValues: {
+          ":p": newPrice,
+          ":one": 1,
+          ":expected": expectedVersion,
+        },
+      }),
+    );
+  } catch (err) {
+    if (err.name === "ConditionalCheckFailedException") {
+      throw new Error("Item was changed by someone else, reload and retry");
+    }
+    throw err;
+  }
+};
 ```
 
-Another common use: `ConditionExpression="attribute_not_exists(pk)"` to avoid overwriting an existing item on `PutItem`.
+Another common use: `ConditionExpression: "attribute_not_exists(pk)"` to avoid overwriting an existing item on `PutItem`.
 
 ## 27: How do DynamoDB transactions work?
 
@@ -778,12 +778,15 @@ A stream is an ordered log of item changes (insert, modify, remove) in a table, 
 
 Common uses: trigger Lambda when data changes, replicate to another store, send notifications, or build audit logs.
 
-```python
-def lambda_handler(event, context):
-    for record in event["Records"]:
-        if record["eventName"] == "INSERT":
-            new_item = record["dynamodb"]["NewImage"]
-            send_welcome_email(new_item["email"]["S"])
+```javascript
+export const handler = async (event) => {
+  for (const record of event.Records) {
+    if (record.eventName === "INSERT") {
+      const newItem = record.dynamodb.NewImage;
+      await sendWelcomeEmail(newItem.email.S);
+    }
+  }
+};
 ```
 
 Records for the same item are delivered in order. Lambda processes each shard in order and retries a failed batch until it succeeds or expires, so handle errors carefully (see the troubleshooting section). There is also the option to stream changes to Kinesis Data Streams instead, which gives longer retention and more consumers.
@@ -792,14 +795,17 @@ Records for the same item are delivered in order. Lambda processes each shard in
 
 Time to Live lets DynamoDB delete items automatically after a timestamp. You pick an attribute that holds the expiry time as a Unix epoch in **seconds**.
 
-```python
-import time
-
-table.put_item(Item={
-    "sessionId": "s-123",
-    "userId": "u-1",
-    "expiresAt": int(time.time()) + 3600,  # 1 hour
-})
+```javascript
+await ddb.send(
+  new PutCommand({
+    TableName: "Sessions",
+    Item: {
+      sessionId: "s-123",
+      userId: "u-1",
+      expiresAt: Math.floor(Date.now() / 1000) + 3600, // 1 hour, in seconds
+    },
+  }),
+);
 ```
 
 ```bash
@@ -827,24 +833,33 @@ Deletes are free (no WCUs) but not instant. They usually happen within a few day
 
 Batch calls are not atomic. Some items can fail because of throttling, and they come back in `UnprocessedKeys` or `UnprocessedItems`. You must retry those with backoff.
 
-```python
-import time
-import boto3
+```javascript
+import { setTimeout as sleep } from "node:timers/promises";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  BatchWriteCommand,
+} from "@aws-sdk/lib-dynamodb";
 
-client = boto3.client("dynamodb")
+const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
-def batch_write(requests):
-    request_items = {"Orders": requests}
-    delay = 0.1
-    while request_items:
-        resp = client.batch_write_item(RequestItems=request_items)
-        request_items = resp.get("UnprocessedItems", {})
-        if request_items:
-            time.sleep(delay)
-            delay = min(delay * 2, 5)
+const batchWrite = async (requests) => {
+  let requestItems = { Orders: requests };
+  let delay = 100;
+  while (Object.keys(requestItems).length > 0) {
+    const resp = await ddb.send(
+      new BatchWriteCommand({ RequestItems: requestItems }),
+    );
+    requestItems = resp.UnprocessedItems ?? {};
+    if (Object.keys(requestItems).length > 0) {
+      await sleep(delay);
+      delay = Math.min(delay * 2, 5000);
+    }
+  }
+};
 ```
 
-The boto3 `table.batch_writer()` helper handles batching and retries of unprocessed items for you.
+The SDK does not split a large list into chunks of 25 for you, so split the requests before calling `batchWrite`.
 
 ## 32: How does pagination work in DynamoDB?
 
@@ -852,19 +867,25 @@ The boto3 `table.batch_writer()` helper handles batching and retries of unproces
 
 The easiest way is to use SDK paginators:
 
-```python
-import boto3
+```javascript
+import { DynamoDBClient, paginateQuery } from "@aws-sdk/client-dynamodb";
 
-client = boto3.client("dynamodb")
-paginator = client.get_paginator("query")
+const client = new DynamoDBClient({});
 
-for page in paginator.paginate(
-    TableName="Orders",
-    KeyConditionExpression="customerId = :c",
-    ExpressionAttributeValues={":c": {"S": "c-123"}},
-):
-    for item in page["Items"]:
-        print(item["orderId"]["S"])
+const pages = paginateQuery(
+  { client },
+  {
+    TableName: "Orders",
+    KeyConditionExpression: "customerId = :c",
+    ExpressionAttributeValues: { ":c": { S: "c-123" } },
+  },
+);
+
+for await (const page of pages) {
+  for (const item of page.Items) {
+    console.log(item.orderId.S);
+  }
+}
 ```
 
 For APIs that return pages to a browser, return `LastEvaluatedKey` (encoded, for example as base64) as a "next token" to the client.
@@ -890,8 +911,6 @@ A single `PutObject` can upload up to 5 GB, but AWS recommends **multipart uploa
 
 The SDKs have high-level helpers that do this for you.
 
-JavaScript SDK v3:
-
 ```javascript
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
@@ -912,16 +931,6 @@ upload.on("httpUploadProgress", (p) => console.log(p.loaded, "/", p.total));
 await upload.done();
 ```
 
-Python:
-
-```python
-import boto3
-from boto3.s3.transfer import TransferConfig
-
-config = TransferConfig(multipart_threshold=100 * 1024 * 1024, max_concurrency=8)
-boto3.client("s3").upload_file("db.dump", "my-backups", "db/2026-10-23.dump", Config=config)
-```
-
 Add a lifecycle rule to abort incomplete multipart uploads, otherwise unfinished parts keep costing money.
 
 ## 35: How can you react to new objects in S3?
@@ -931,14 +940,15 @@ Two options:
 1. **S3 event notifications**: send events like `s3:ObjectCreated:*` to Lambda, SQS or SNS. Simple, but limited filtering (prefix and suffix only).
 2. **Amazon EventBridge**: turn on EventBridge for the bucket, and all events go to the default event bus. You get advanced filtering (object size, metadata, key patterns), many more targets, archive and replay.
 
-```python
-from urllib.parse import unquote_plus
-
-def lambda_handler(event, context):
-    for record in event["Records"]:
-        bucket = record["s3"]["bucket"]["name"]
-        key = unquote_plus(record["s3"]["object"]["key"])  # keys are URL-encoded
-        print(f"New object: s3://{bucket}/{key}")
+```javascript
+export const handler = async (event) => {
+  for (const record of event.Records) {
+    const bucket = record.s3.bucket.name;
+    // keys are URL-encoded, and spaces arrive as "+"
+    const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, " "));
+    console.log(`New object: s3://${bucket}/${key}`);
+  }
+};
 ```
 
 Be careful not to write output into the same bucket and prefix that triggers the function, or you get an infinite loop.
@@ -985,13 +995,15 @@ aws s3api put-bucket-lifecycle-configuration \
 
 FIFO queues need a `MessageGroupId`. Messages in the same group are processed in order, one at a time. Different groups can be processed in parallel, so use something like `customerId` as the group ID to get both order and parallelism.
 
-```python
-sqs.send_message(
-    QueueUrl=fifo_url,
-    MessageBody=json.dumps(event),
-    MessageGroupId=f"customer-{customer_id}",
-    MessageDeduplicationId=event["eventId"],  # or enable content-based deduplication
-)
+```javascript
+await sqs.send(
+  new SendMessageCommand({
+    QueueUrl: fifoUrl,
+    MessageBody: JSON.stringify(event),
+    MessageGroupId: `customer-${customerId}`,
+    MessageDeduplicationId: event.eventId, // or enable content-based deduplication
+  }),
+);
 ```
 
 ## 38: What are the key SQS settings and how do you send and receive messages?
@@ -1002,24 +1014,41 @@ sqs.send_message(
 - **Retention**: 1 minute to 14 days, default 4 days.
 - **Max message size**: 1 MiB (raised from 256 KiB in 2025). For bigger payloads, store data in S3 and send a pointer, for example with the Extended Client Library.
 
-```python
-import json
-import boto3
+```javascript
+import {
+  SQSClient,
+  GetQueueUrlCommand,
+  SendMessageCommand,
+  ReceiveMessageCommand,
+  DeleteMessageCommand,
+} from "@aws-sdk/client-sqs";
 
-sqs = boto3.client("sqs")
-url = sqs.get_queue_url(QueueName="orders")["QueueUrl"]
+const sqs = new SQSClient({});
+const { QueueUrl } = await sqs.send(
+  new GetQueueUrlCommand({ QueueName: "orders" }),
+);
 
-sqs.send_message(QueueUrl=url, MessageBody=json.dumps({"orderId": "o-1"}))
+await sqs.send(
+  new SendMessageCommand({
+    QueueUrl,
+    MessageBody: JSON.stringify({ orderId: "o-1" }),
+  }),
+);
 
-resp = sqs.receive_message(
-    QueueUrl=url,
-    MaxNumberOfMessages=10,
-    WaitTimeSeconds=20,
-    VisibilityTimeout=60,
-)
-for msg in resp.get("Messages", []):
-    process(json.loads(msg["Body"]))
-    sqs.delete_message(QueueUrl=url, ReceiptHandle=msg["ReceiptHandle"])
+const { Messages = [] } = await sqs.send(
+  new ReceiveMessageCommand({
+    QueueUrl,
+    MaxNumberOfMessages: 10,
+    WaitTimeSeconds: 20,
+    VisibilityTimeout: 60,
+  }),
+);
+for (const msg of Messages) {
+  await processOrder(JSON.parse(msg.Body));
+  await sqs.send(
+    new DeleteMessageCommand({ QueueUrl, ReceiptHandle: msg.ReceiptHandle }),
+  );
+}
 ```
 
 If processing takes longer than expected, call `ChangeMessageVisibility` to extend the timeout.
@@ -1074,17 +1103,25 @@ Features: AWS service events on the default bus, custom buses, SaaS partner even
 
 Sending an event:
 
-```python
-import json
-import boto3
+```javascript
+import {
+  EventBridgeClient,
+  PutEventsCommand,
+} from "@aws-sdk/client-eventbridge";
 
-events = boto3.client("events")
-events.put_events(Entries=[{
-    "EventBusName": "orders-bus",
-    "Source": "com.example.orders",
-    "DetailType": "OrderPlaced",
-    "Detail": json.dumps({"orderId": "o-1", "total": 250, "country": "DE"}),
-}])
+const events = new EventBridgeClient({});
+await events.send(
+  new PutEventsCommand({
+    Entries: [
+      {
+        EventBusName: "orders-bus",
+        Source: "com.example.orders",
+        DetailType: "OrderPlaced",
+        Detail: JSON.stringify({ orderId: "o-1", total: 250, country: "DE" }),
+      },
+    ],
+  }),
+);
 ```
 
 Rule pattern that matches large orders from Germany:
@@ -1115,16 +1152,17 @@ Kinesis Data Streams is for real-time streaming of large amounts of ordered data
 
 Each shard supports 1 MB/s or 1,000 records/s of writes, and 2 MB/s of reads shared by all standard consumers. **Enhanced fan-out** gives each registered consumer its own 2 MB/s per shard.
 
-```python
-import json
-import boto3
+```javascript
+import { KinesisClient, PutRecordCommand } from "@aws-sdk/client-kinesis";
 
-kinesis = boto3.client("kinesis")
-kinesis.put_record(
-    StreamName="clickstream",
-    Data=json.dumps({"userId": "u-1", "page": "/cart"}).encode(),
-    PartitionKey="u-1",  # same key goes to the same shard, so order is kept per user
-)
+const kinesis = new KinesisClient({});
+await kinesis.send(
+  new PutRecordCommand({
+    StreamName: "clickstream",
+    Data: Buffer.from(JSON.stringify({ userId: "u-1", page: "/cart" })),
+    PartitionKey: "u-1", // same key goes to the same shard, so order is kept per user
+  }),
+);
 ```
 
 ## 43: What is Amazon Data Firehose?
@@ -1212,26 +1250,25 @@ This example uses JSONata (added in late 2024). Older state machines use JSONPat
 
 Most apps combine both and add a **TTL** so stale data expires.
 
-```python
-import json
-import os
-import redis  # works with Valkey and Redis OSS
+```javascript
+import Redis from "ioredis"; // works with Valkey and Redis OSS
 
-cache = redis.Redis(host=os.environ["CACHE_HOST"], port=6379, ssl=True)
+const cache = new Redis({ host: process.env.CACHE_HOST, port: 6379, tls: {} });
 
-def get_product(product_id):
-    key = f"product:{product_id}"
-    cached = cache.get(key)
-    if cached:
-        return json.loads(cached)
+const getProduct = async (productId) => {
+  const key = `product:${productId}`;
+  const cached = await cache.get(key);
+  if (cached) return JSON.parse(cached);
 
-    product = db_get_product(product_id)            # cache miss
-    cache.setex(key, 300, json.dumps(product))      # TTL 5 minutes
-    return product
+  const product = await dbGetProduct(productId); // cache miss
+  await cache.set(key, JSON.stringify(product), "EX", 300); // TTL 5 minutes
+  return product;
+};
 
-def update_product(product):
-    db_save_product(product)
-    cache.setex(f"product:{product['id']}", 300, json.dumps(product))  # write-through
+const updateProduct = async (product) => {
+  await dbSaveProduct(product);
+  await cache.set(`product:${product.id}`, JSON.stringify(product), "EX", 300); // write-through
+};
 ```
 
 ElastiCache now supports Valkey (an open source fork of Redis), Redis OSS and Memcached, in both node-based clusters and ElastiCache Serverless.
@@ -1264,8 +1301,6 @@ Use AppSync when clients need flexible queries (fetch exactly the fields they ne
 - **Paginators** loop through all pages of a list API for you (handling `NextToken`, `Marker`, `LastEvaluatedKey`, and so on).
 - **Waiters** poll an API until a resource reaches a state, like "table exists" or "instance running".
 
-JavaScript SDK v3:
-
 ```javascript
 import {
   DynamoDBClient,
@@ -1290,18 +1325,6 @@ for await (const page of paginateListObjectsV2(
 }
 ```
 
-Python:
-
-```python
-s3 = boto3.client("s3")
-s3.create_bucket(Bucket="my-new-bucket")
-s3.get_waiter("bucket_exists").wait(Bucket="my-new-bucket")
-
-for page in s3.get_paginator("list_objects_v2").paginate(Bucket="my-bucket"):
-    for obj in page.get("Contents", []):
-        print(obj["Key"])
-```
-
 ## 48: What does idempotency mean and how do you make a Lambda function idempotent?
 
 An operation is idempotent when running it several times gives the same result as running it once. It matters because SQS, SNS, EventBridge, async Lambda and client retries can all deliver the same event more than once. Without idempotency, a customer might be charged twice.
@@ -1310,20 +1333,28 @@ Common approach: store a unique key for each request (for example an order ID or
 
 Powertools for AWS Lambda has a ready-made utility:
 
-```python
-from aws_lambda_powertools.utilities.idempotency import (
-    DynamoDBPersistenceLayer,
-    IdempotencyConfig,
-    idempotent,
-)
+```javascript
+import {
+  makeIdempotent,
+  IdempotencyConfig,
+} from "@aws-lambda-powertools/idempotency";
+import { DynamoDBPersistenceLayer } from "@aws-lambda-powertools/idempotency/dynamodb";
 
-persistence = DynamoDBPersistenceLayer(table_name="IdempotencyTable")
-config = IdempotencyConfig(event_key_jmespath="body.orderId", expires_after_seconds=3600)
+const persistenceStore = new DynamoDBPersistenceLayer({
+  tableName: "IdempotencyTable",
+});
+const config = new IdempotencyConfig({
+  eventKeyJmesPath: "powertools_json(body).orderId",
+  expiresAfterSeconds: 3600,
+});
 
-@idempotent(persistence_store=persistence, config=config)
-def lambda_handler(event, context):
-    charge_customer(event)
-    return {"statusCode": 200, "body": "charged"}
+export const handler = makeIdempotent(
+  async (event) => {
+    await chargeCustomer(event);
+    return { statusCode: 200, body: "charged" };
+  },
+  { persistenceStore, config },
+);
 ```
 
 Many AWS APIs also take a client token (`ClientRequestToken`, `ClientToken`) for the same reason.
@@ -1475,25 +1506,31 @@ Trust policy example:
 }
 ```
 
-Assume the role in Python:
+Assume the role in Node.js:
 
-```python
-import boto3
+```javascript
+import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
+import { S3Client } from "@aws-sdk/client-s3";
 
-sts = boto3.client("sts")
-creds = sts.assume_role(
-    RoleArn="arn:aws:iam::222222222222:role/deploy",
-    RoleSessionName="ci-deploy-1234",
-    DurationSeconds=3600,
-)["Credentials"]
+const sts = new STSClient({});
+const { Credentials } = await sts.send(
+  new AssumeRoleCommand({
+    RoleArn: "arn:aws:iam::222222222222:role/deploy",
+    RoleSessionName: "ci-deploy-1234",
+    DurationSeconds: 3600,
+  }),
+);
 
-s3 = boto3.client(
-    "s3",
-    aws_access_key_id=creds["AccessKeyId"],
-    aws_secret_access_key=creds["SecretAccessKey"],
-    aws_session_token=creds["SessionToken"],
-)
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: Credentials.AccessKeyId,
+    secretAccessKey: Credentials.SecretAccessKey,
+    sessionToken: Credentials.SessionToken,
+  },
+});
 ```
+
+The `fromTemporaryCredentials` provider in `@aws-sdk/credential-providers` does the same and also refreshes the credentials before they expire.
 
 With the CLI you can do the same with a profile:
 
@@ -1532,8 +1569,8 @@ The exact order differs slightly by SDK, but the idea is the same. In Lambda, th
 
 The key point: never hardcode access keys in code or commit them to Git. Create the client with no credentials and let the chain find them.
 
-```python
-s3 = boto3.client("s3")  # credentials come from the environment
+```javascript
+const s3 = new S3Client({}); // credentials come from the environment
 ```
 
 ## 58: How does an EC2 instance get AWS credentials, and what is IMDSv2?
@@ -1797,11 +1834,12 @@ OrdersApi:
 
 API Gateway checks the signature, expiry, issuer and audience. Your Lambda gets the claims in the event:
 
-```python
-def lambda_handler(event, context):
-    claims = event["requestContext"]["authorizer"]["jwt"]["claims"]
-    user_id = claims["sub"]
-    ...
+```javascript
+export const handler = async (event) => {
+  const { claims } = event.requestContext.authorizer.jwt;
+  const userId = claims.sub;
+  // ...
+};
 ```
 
 You can also require OAuth scopes per route with `AuthorizationScopes`.
@@ -1876,22 +1914,39 @@ KMS `Encrypt` only takes up to 4 KB of data. For larger data you use envelope en
 3. Store the encrypted data together with the encrypted data key.
 4. To decrypt: call `Decrypt` on the encrypted data key, then decrypt the data locally.
 
-```python
-import os
-import boto3
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+```javascript
+import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import {
+  KMSClient,
+  GenerateDataKeyCommand,
+  DecryptCommand,
+} from "@aws-sdk/client-kms";
 
-kms = boto3.client("kms")
+const kms = new KMSClient({});
 
-def encrypt(data: bytes):
-    dk = kms.generate_data_key(KeyId="alias/app-data", KeySpec="AES_256")
-    nonce = os.urandom(12)
-    ciphertext = AESGCM(dk["Plaintext"]).encrypt(nonce, data, None)
-    return {"ciphertext": ciphertext, "nonce": nonce, "encrypted_key": dk["CiphertextBlob"]}
+const encrypt = async (data) => {
+  const dk = await kms.send(
+    new GenerateDataKeyCommand({ KeyId: "alias/app-data", KeySpec: "AES_256" }),
+  );
+  const nonce = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", dk.Plaintext, nonce);
+  const ciphertext = Buffer.concat([cipher.update(data), cipher.final()]);
+  return {
+    ciphertext,
+    nonce,
+    authTag: cipher.getAuthTag(),
+    encryptedKey: dk.CiphertextBlob,
+  };
+};
 
-def decrypt(blob):
-    key = kms.decrypt(CiphertextBlob=blob["encrypted_key"])["Plaintext"]
-    return AESGCM(key).decrypt(blob["nonce"], blob["ciphertext"], None)
+const decrypt = async (blob) => {
+  const { Plaintext: key } = await kms.send(
+    new DecryptCommand({ CiphertextBlob: blob.encryptedKey }),
+  );
+  const decipher = createDecipheriv("aes-256-gcm", key, blob.nonce);
+  decipher.setAuthTag(blob.authTag);
+  return Buffer.concat([decipher.update(blob.ciphertext), decipher.final()]);
+};
 ```
 
 Benefits: large data never goes over the network to KMS, and you make fewer KMS calls. In real projects use the **AWS Encryption SDK**, which does this for you with a safe message format. AWS services like S3 and DynamoDB use envelope encryption internally.
@@ -1963,15 +2018,17 @@ Server-side:
 
 Client-side: you encrypt before upload (for example with the Amazon S3 Encryption Client or the AWS Encryption SDK). S3 never sees the plaintext.
 
-```python
-s3.put_object(
-    Bucket="customer-docs",
-    Key="contracts/c-1.pdf",
-    Body=data,
-    ServerSideEncryption="aws:kms",
-    SSEKMSKeyId="alias/customer-docs",
-    BucketKeyEnabled=True,
-)
+```javascript
+await s3.send(
+  new PutObjectCommand({
+    Bucket: "customer-docs",
+    Key: "contracts/c-1.pdf",
+    Body: data,
+    ServerSideEncryption: "aws:kms",
+    SSEKMSKeyId: "alias/customer-docs",
+    BucketKeyEnabled: true,
+  }),
+);
 ```
 
 ## 77: How do you force encryption and HTTPS for an S3 bucket?
@@ -2044,12 +2101,12 @@ export const handler = async (event) => {
 };
 ```
 
-```python
-url = boto3.client("s3").generate_presigned_url(
-    "get_object",
-    Params={"Bucket": "user-uploads", "Key": "uploads/abc.png"},
-    ExpiresIn=600,
-)
+```javascript
+const downloadUrl = await getSignedUrl(
+  s3,
+  new GetObjectCommand({ Bucket: "user-uploads", Key: "uploads/abc.png" }),
+  { expiresIn: 600 },
+);
 ```
 
 Max expiry is 7 days with long-term credentials. If the URL is signed with temporary credentials (like a Lambda role), it stops working when those credentials expire, even if `expiresIn` is longer.
@@ -2098,18 +2155,23 @@ Rule of thumb: use Secrets Manager for credentials that should rotate, and Param
 
 ## 82: How do you read a secret from Secrets Manager in code?
 
-```python
-import json
-import boto3
+```javascript
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
 
-sm = boto3.client("secretsmanager")
+const sm = new SecretsManagerClient({});
 
-def get_db_credentials():
-    resp = sm.get_secret_value(SecretId="prod/orders/db")
-    return json.loads(resp["SecretString"])
+const getDbCredentials = async () => {
+  const { SecretString } = await sm.send(
+    new GetSecretValueCommand({ SecretId: "prod/orders/db" }),
+  );
+  return JSON.parse(SecretString);
+};
 
-creds = get_db_credentials()
-# creds["username"], creds["password"], creds["host"]
+const creds = await getDbCredentials();
+// creds.username, creds.password, creds.host
 ```
 
 ```javascript
@@ -2151,15 +2213,20 @@ aws ssm put-parameter --name /orders/prod/table-name --type String --value Order
 aws ssm put-parameter --name /orders/prod/api-key --type SecureString --value 's3cr3t' --key-id alias/orders
 ```
 
-```python
-import boto3
+```javascript
+import { SSMClient, paginateGetParametersByPath } from "@aws-sdk/client-ssm";
 
-ssm = boto3.client("ssm")
-params = {}
-paginator = ssm.get_paginator("get_parameters_by_path")
-for page in paginator.paginate(Path="/orders/prod/", Recursive=True, WithDecryption=True):
-    for p in page["Parameters"]:
-        params[p["Name"].split("/")[-1]] = p["Value"]
+const ssm = new SSMClient({});
+const params = {};
+const pages = paginateGetParametersByPath(
+  { client: ssm },
+  { Path: "/orders/prod/", Recursive: true, WithDecryption: true },
+);
+for await (const page of pages) {
+  for (const p of page.Parameters) {
+    params[p.Name.split("/").at(-1)] = p.Value;
+  }
+}
 ```
 
 IAM policy for one environment only:
@@ -2183,16 +2250,18 @@ Anyone with `lambda:GetFunctionConfiguration` can still see the values in plaint
 - Option 1 (recommended): store them in Secrets Manager or Parameter Store and read them at runtime.
 - Option 2: use encryption helpers so the value is encrypted in transit and in the console, and decrypt it in code with `kms:Decrypt`.
 
-```python
-import os
-import base64
-import boto3
+```javascript
+import { KMSClient, DecryptCommand } from "@aws-sdk/client-kms";
 
-ENCRYPTED = os.environ["API_KEY"]
-API_KEY = boto3.client("kms").decrypt(
-    CiphertextBlob=base64.b64decode(ENCRYPTED),
-    EncryptionContext={"LambdaFunctionName": os.environ["AWS_LAMBDA_FUNCTION_NAME"]},
-)["Plaintext"].decode()
+const { Plaintext } = await new KMSClient({}).send(
+  new DecryptCommand({
+    CiphertextBlob: Buffer.from(process.env.API_KEY, "base64"),
+    EncryptionContext: {
+      LambdaFunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+    },
+  }),
+);
+const API_KEY = Buffer.from(Plaintext).toString("utf8");
 ```
 
 ## 86: How do you handle encryption in transit?
@@ -2489,7 +2558,7 @@ Description: Orders service
 
 Globals:
   Function:
-    Runtime: python3.13
+    Runtime: nodejs22.x
     Architectures: [arm64]
     MemorySize: 256
     Timeout: 10
@@ -2502,7 +2571,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: app.create_order
+      Handler: app.createOrder
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref OrdersTable
@@ -2737,16 +2806,31 @@ SeedData:
     TableName: !Ref OrdersTable
 ```
 
-```python
-import cfnresponse  # available when the function code is inline (ZipFile)
+```javascript
+const sendResponse = (event, context, status, data, reason) =>
+  fetch(event.ResponseURL, {
+    method: "PUT",
+    body: JSON.stringify({
+      Status: status,
+      Reason: reason ?? `See CloudWatch log stream ${context.logStreamName}`,
+      PhysicalResourceId: event.PhysicalResourceId ?? context.logStreamName,
+      StackId: event.StackId,
+      RequestId: event.RequestId,
+      LogicalResourceId: event.LogicalResourceId,
+      Data: data,
+    }),
+  });
 
-def handler(event, context):
-    try:
-        if event["RequestType"] == "Create":
-            seed(event["ResourceProperties"]["TableName"])
-        cfnresponse.send(event, context, cfnresponse.SUCCESS, {"Message": "done"})
-    except Exception as e:
-        cfnresponse.send(event, context, cfnresponse.FAILED, {"Error": str(e)})
+export const handler = async (event, context) => {
+  try {
+    if (event.RequestType === "Create") {
+      await seed(event.ResourceProperties.TableName);
+    }
+    await sendResponse(event, context, "SUCCESS", { Message: "done" });
+  } catch (err) {
+    await sendResponse(event, context, "FAILED", {}, err.message);
+  }
+};
 ```
 
 If the function never responds (for example an unhandled exception), the stack waits until the timeout. `ServiceTimeout` lets you lower that from the default of one hour. The CDK has a Provider framework that handles the response part for you.
@@ -2874,18 +2958,24 @@ Hooks:
 
 A hook function must report its result back:
 
-```python
-import boto3
+```javascript
+import {
+  CodeDeployClient,
+  PutLifecycleEventHookExecutionStatusCommand,
+} from "@aws-sdk/client-codedeploy";
 
-codedeploy = boto3.client("codedeploy")
+const codedeploy = new CodeDeployClient({});
 
-def handler(event, context):
-    status = "Succeeded" if run_smoke_tests() else "Failed"
-    codedeploy.put_lifecycle_event_hook_execution_status(
-        deploymentId=event["DeploymentId"],
-        lifecycleEventHookExecutionId=event["LifecycleEventHookExecutionId"],
-        status=status,
-    )
+export const handler = async (event) => {
+  const status = (await runSmokeTests()) ? "Succeeded" : "Failed";
+  await codedeploy.send(
+    new PutLifecycleEventHookExecutionStatusCommand({
+      deploymentId: event.DeploymentId,
+      lifecycleEventHookExecutionId: event.LifecycleEventHookExecutionId,
+      status,
+    }),
+  );
+};
 ```
 
 ## 118: How does CodeDeploy work with EC2 and on-premises servers?
@@ -3143,11 +3233,6 @@ npm install
 npm publish   # publish a private package
 ```
 
-```bash
-aws codeartifact login --tool pip --domain my-company --repository shared
-pip install internal-utils
-```
-
 The login token is valid for up to 12 hours. In CodeBuild, run the login command in the `install` phase.
 
 ## 130: How do you push images to Amazon ECR?
@@ -3297,18 +3382,17 @@ Feature flag profile example:
 
 In Lambda, the **AppConfig Agent Lambda extension** caches the config locally and polls for updates:
 
-```python
-import json
-import urllib.request
+```javascript
+const URL =
+  "http://localhost:2772/applications/orders/environments/prod/configurations/feature-flags";
 
-URL = "http://localhost:2772/applications/orders/environments/prod/configurations/feature-flags"
-
-def lambda_handler(event, context):
-    with urllib.request.urlopen(URL) as resp:
-        flags = json.loads(resp.read())
-    if flags["new_checkout"]["enabled"]:
-        return new_checkout(event)
-    return old_checkout(event)
+export const handler = async (event) => {
+  const flags = await (await fetch(URL)).json();
+  if (flags.new_checkout.enabled) {
+    return newCheckout(event);
+  }
+  return oldCheckout(event);
+};
 ```
 
 On containers and EC2, use the AppConfig Agent or the `StartConfigurationSession` and `GetLatestConfiguration` APIs.
@@ -3337,17 +3421,15 @@ export const data = defineData({ schema });
 
 ## 137: How do you package Lambda functions with dependencies?
 
-- **Python**: install dependencies into the package folder and zip it. For packages with native code (like `numpy`, `cryptography`), install wheels for the Lambda platform, or build with `sam build --use-container`.
+- **Plain zip**: install production dependencies next to your code and zip everything. For packages with native code (like `sharp` or `bcrypt`), install binaries for the Lambda platform (Linux, and the function's architecture), or build with `sam build --use-container`.
 
 ```bash
-pip install -r requirements.txt -t package/ \
-  --platform manylinux2014_aarch64 --only-binary=:all: --python-version 3.13
-cp app.py package/
-cd package && zip -r ../function.zip . && cd ..
+npm ci --omit=dev --os=linux --cpu=arm64
+zip -r function.zip index.mjs node_modules package.json
 aws lambda update-function-code --function-name orders-api --zip-file fileb://function.zip
 ```
 
-- **Node.js**: bundle and tree-shake with esbuild (SAM supports `BuildMethod: esbuild` in `Metadata`), so the package is small and cold starts are faster.
+- **Bundling**: bundle and tree-shake with esbuild (SAM supports `BuildMethod: esbuild` in `Metadata`), so the package is small and cold starts are faster.
 
 ```yaml
 CreateOrderFunction:
@@ -3383,22 +3465,6 @@ test("returns 404 when order is missing", async () => {
   const res = await handler({ pathParameters: { id: "o-404" } });
   expect(res.statusCode).toBe(404);
 });
-```
-
-```python
-import boto3
-from moto import mock_aws
-
-@mock_aws
-def test_save_order():
-    boto3.client("dynamodb", region_name="us-east-1").create_table(
-        TableName="Orders",
-        KeySchema=[{"AttributeName": "orderId", "KeyType": "HASH"}],
-        AttributeDefinitions=[{"AttributeName": "orderId", "AttributeType": "S"}],
-        BillingMode="PAY_PER_REQUEST",
-    )
-    save_order({"orderId": "o-1"})
-    ...
 ```
 
 - **Local runs**: `sam local invoke` and `sam local start-api` for a quick check. They do not emulate IAM or other services fully.
@@ -3680,24 +3746,31 @@ The same artifact is promoted through every environment. Only parameters change.
 
 Use `PutMetricData`. Each metric has a namespace, name, dimensions, value and unit. Standard resolution is 1 minute. High resolution (`StorageResolution: 1`) keeps data per second, useful for alarms that react within 10 or 30 seconds.
 
-```python
-import boto3
+```javascript
+import {
+  CloudWatchClient,
+  PutMetricDataCommand,
+} from "@aws-sdk/client-cloudwatch";
 
-cloudwatch = boto3.client("cloudwatch")
+const cloudwatch = new CloudWatchClient({});
 
-cloudwatch.put_metric_data(
-    Namespace="OrdersService",
-    MetricData=[{
-        "MetricName": "OrdersPlaced",
-        "Dimensions": [
-            {"Name": "Environment", "Value": "prod"},
-            {"Name": "Channel", "Value": "mobile"},
+await cloudwatch.send(
+  new PutMetricDataCommand({
+    Namespace: "OrdersService",
+    MetricData: [
+      {
+        MetricName: "OrdersPlaced",
+        Dimensions: [
+          { Name: "Environment", Value: "prod" },
+          { Name: "Channel", Value: "mobile" },
         ],
-        "Value": 1,
-        "Unit": "Count",
-        "StorageResolution": 60,
-    }],
-)
+        Value: 1,
+        Unit: "Count",
+        StorageResolution: 60,
+      },
+    ],
+  }),
+);
 ```
 
 Each unique combination of dimensions is a separate metric (and costs money), so do not use high-cardinality values like user ID as a dimension. Calling `PutMetricData` from Lambda on every request adds latency. The Embedded Metric Format is usually a better choice there.
@@ -3725,19 +3798,22 @@ EMF lets you create metrics by writing a JSON log line in a special format. Clou
 }
 ```
 
-With Powertools for AWS Lambda (Python):
+With Powertools for AWS Lambda (TypeScript), which also works in plain JavaScript:
 
-```python
-from aws_lambda_powertools import Metrics
-from aws_lambda_powertools.metrics import MetricUnit
+```javascript
+import { Metrics, MetricUnit } from "@aws-lambda-powertools/metrics";
 
-metrics = Metrics(namespace="OrdersService", service="orders")
+const metrics = new Metrics({
+  namespace: "OrdersService",
+  serviceName: "orders",
+});
 
-@metrics.log_metrics
-def lambda_handler(event, context):
-    metrics.add_dimension(name="Environment", value="prod")
-    metrics.add_metric(name="OrdersPlaced", unit=MetricUnit.Count, value=1)
-    metrics.add_metadata(key="orderId", value=event["orderId"])
+export const handler = async (event) => {
+  metrics.addDimension("Environment", "prod");
+  metrics.addMetric("OrdersPlaced", MetricUnit.Count, 1);
+  metrics.addMetadata("orderId", event.orderId);
+  metrics.publishStoredMetrics(); // flushes the EMF log line
+};
 ```
 
 ## 154: How do you search logs with CloudWatch Logs Insights?
@@ -3839,15 +3915,17 @@ CreateOrderFunction:
 
 With Powertools:
 
-```python
-from aws_lambda_powertools import Logger
+```javascript
+import { Logger } from "@aws-lambda-powertools/logger";
 
-logger = Logger(service="orders")
+const logger = new Logger({ serviceName: "orders" });
 
-@logger.inject_lambda_context(log_event=False, correlation_id_path="requestContext.requestId")
-def lambda_handler(event, context):
-    logger.append_keys(order_id=event.get("orderId"))
-    logger.info("Creating order")
+export const handler = async (event, context) => {
+  logger.addContext(context);
+  logger.setCorrelationId(event.requestContext?.requestId);
+  logger.appendKeys({ orderId: event.orderId });
+  logger.info("Creating order");
+};
 ```
 
 ## 158: What is AWS X-Ray and what are its main concepts?
@@ -3875,20 +3953,27 @@ X-Ray data is viewed in the CloudWatch console (traces, trace map, Application S
 
 Use annotations for things you will search on (customer tier, order type, error code). Use metadata for debug data (full request, response).
 
-```python
-from aws_lambda_powertools import Tracer
+```javascript
+import { Tracer } from "@aws-lambda-powertools/tracer";
+import { captureLambdaHandler } from "@aws-lambda-powertools/tracer/middleware";
+import middy from "@middy/core";
 
-tracer = Tracer(service="orders")
+const tracer = new Tracer({ serviceName: "orders" });
 
-@tracer.capture_method
-def charge_card(order):
-    tracer.put_annotation(key="customer_tier", value=order["tier"])
-    tracer.put_metadata(key="order", value=order)
-    ...
+const chargeCard = async (order) => {
+  const subsegment = tracer.getSegment().addNewSubsegment("chargeCard");
+  try {
+    tracer.putAnnotation("customer_tier", order.tier);
+    tracer.putMetadata("order", order);
+    // ...
+  } finally {
+    subsegment.close();
+  }
+};
 
-@tracer.capture_lambda_handler
-def lambda_handler(event, context):
-    return charge_card(event)
+export const handler = middy(async (event) => chargeCard(event)).use(
+  captureLambdaHandler(tracer),
+);
 ```
 
 Filter expression in the console:
@@ -3967,6 +4052,8 @@ SnapStart reduces cold starts by taking a snapshot of the initialized execution 
 - Not compatible with provisioned concurrency, EFS, or ephemeral storage above 512 MB.
 - Anything unique created during init (random seeds, unique IDs, temporary credentials, network connections) is shared by all environments restored from the snapshot. Use runtime hooks to refresh them.
 
+SnapStart does not support Node.js runtimes, so this runtime hook example uses Python:
+
 ```python
 from snapshot_restore_py import register_after_restore
 
@@ -4027,11 +4114,17 @@ The log shows `Task timed out after X seconds`. Steps:
 5. **Event loop not empty (Node.js)**: an unawaited promise or open handle. Make sure every promise is awaited.
 6. Raise the memory (more CPU) if the work is CPU-bound, or raise the timeout if the work really takes longer.
 
-```python
-from botocore.config import Config
-import boto3
+```javascript
+import { S3Client } from "@aws-sdk/client-s3";
+import { NodeHttpHandler } from "@smithy/node-http-handler";
 
-s3 = boto3.client("s3", config=Config(connect_timeout=2, read_timeout=5, retries={"max_attempts": 3}))
+const s3 = new S3Client({
+  maxAttempts: 3,
+  requestHandler: new NodeHttpHandler({
+    connectionTimeout: 2000, // ms
+    requestTimeout: 5000, // ms
+  }),
+});
 ```
 
 Also remember that API Gateway has its own timeout (29 seconds by default for REST APIs, 30 seconds for HTTP APIs), so a function with a 60 second timeout behind API Gateway still fails at the API.
@@ -4123,12 +4216,10 @@ When a call fails with a throttling or temporary error (429, 500, 503, `Throttli
 
 The AWS SDKs already do this. You can tune it:
 
-```python
-import boto3
-from botocore.config import Config
+```javascript
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
-config = Config(retries={"max_attempts": 6, "mode": "adaptive"})
-dynamodb = boto3.client("dynamodb", config=config)
+const dynamodb = new DynamoDBClient({ maxAttempts: 6, retryMode: "adaptive" });
 ```
 
 ```javascript
@@ -4145,18 +4236,21 @@ Retry modes:
 
 For your own code (for example calling a third-party API):
 
-```python
-import random
-import time
+```javascript
+import { setTimeout as sleep } from "node:timers/promises";
 
-def call_with_backoff(fn, max_attempts=5, base=0.1, cap=5.0):
-    for attempt in range(max_attempts):
-        try:
-            return fn()
-        except TemporaryError:
-            if attempt == max_attempts - 1:
-                raise
-            time.sleep(random.uniform(0, min(cap, base * 2 ** attempt)))  # full jitter
+const callWithBackoff = async (fn, maxAttempts = 5, base = 100, cap = 5000) => {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (!(err instanceof TemporaryError) || attempt === maxAttempts - 1) {
+        throw err;
+      }
+      await sleep(Math.random() * Math.min(cap, base * 2 ** attempt)); // full jitter, ms
+    }
+  }
+};
 ```
 
 Only retry errors that can succeed later. Do not retry `400 ValidationException` or `403 AccessDenied`.
@@ -4191,12 +4285,22 @@ DynamoDB has adaptive capacity, which moves capacity to hot partitions automatic
 - Use eventually consistent reads where possible.
 - For big scans (exports or analytics), use **parallel scan** with `Segment` and `TotalSegments`, or better, **Export to S3** and query with Athena, which uses no table capacity.
 
-```python
-def scan_segment(segment, total):
-    resp = table.scan(Segment=segment, TotalSegments=total, ProjectionExpression="pk, status")
-    ...
+```javascript
+const scanSegment = async (segment, totalSegments) => {
+  const resp = await ddb.send(
+    new ScanCommand({
+      TableName: "Orders",
+      Segment: segment,
+      TotalSegments: totalSegments,
+      ProjectionExpression: "pk, #status",
+      ExpressionAttributeNames: { "#status": "status" },
+    }),
+  );
+  // ... follow LastEvaluatedKey for more pages in this segment
+};
 
-# run scan_segment(0, 4), scan_segment(1, 4), ... in parallel threads
+// run all segments in parallel
+await Promise.all([0, 1, 2, 3].map((segment) => scanSegment(segment, 4)));
 ```
 
 ## 177: When is DAX not a good fit?
@@ -4278,8 +4382,14 @@ Throttling also protects your backend. For example, if Lambda reserved concurren
 - **S3 Express One Zone** for very low latency and high request rates in a single AZ.
 - With SSE-KMS, use **Bucket Keys** to avoid hitting KMS limits.
 
-```python
-s3.get_object(Bucket="big-data", Key="huge.csv", Range="bytes=0-1048575")  # first 1 MB
+```javascript
+await s3.send(
+  new GetObjectCommand({
+    Bucket: "big-data",
+    Key: "huge.csv",
+    Range: "bytes=0-1048575", // first 1 MB
+  }),
+);
 ```
 
 ## 184: Your code gets `AccessDenied` from S3. What do you check?
@@ -4438,26 +4548,41 @@ Fixes:
 - Limit the function's concurrency (reserved concurrency or SQS maximum concurrency) to what the database can handle.
 - For Aurora, consider the **RDS Data API** (HTTP-based, no connection management), or **Aurora DSQL** or DynamoDB for serverless-friendly data stores.
 
-```python
-import os
-import boto3
-import pymysql
+```javascript
+import { readFileSync } from "node:fs";
+import { Signer } from "@aws-sdk/rds-signer";
+import mysql from "mysql2/promise";
 
-def connect():
-    token = boto3.client("rds").generate_db_auth_token(
-        DBHostname=os.environ["PROXY_ENDPOINT"], Port=3306, DBUsername="app_user"
-    )
-    return pymysql.connect(
-        host=os.environ["PROXY_ENDPOINT"], user="app_user", password=token,
-        database="orders", ssl={"ca": "/opt/rds-ca.pem"},  # CA bundle shipped in a layer
-    )
+const host = process.env.PROXY_ENDPOINT;
 
-conn = connect()  # reused across invocations
+const connect = async () => {
+  const signer = new Signer({
+    hostname: host,
+    port: 3306,
+    username: "app_user",
+  });
+  const token = await signer.getAuthToken();
+  return mysql.createConnection({
+    host,
+    user: "app_user",
+    password: token,
+    database: "orders",
+    ssl: { ca: readFileSync("/opt/rds-ca.pem") }, // CA bundle shipped in a layer
+    // IAM auth sends the token with the cleartext plugin (safe because TLS is on)
+    authPlugins: {
+      mysql_clear_password: () => () => Buffer.from(`${token}\0`),
+    },
+  });
+};
 
-def lambda_handler(event, context):
-    with conn.cursor() as cur:
-        cur.execute("SELECT status FROM orders WHERE id = %s", (event["id"],))
-        return cur.fetchone()
+const conn = await connect(); // reused across invocations
+
+export const handler = async (event) => {
+  const [rows] = await conn.execute("SELECT status FROM orders WHERE id = ?", [
+    event.id,
+  ]);
+  return rows[0];
+};
 ```
 
 ## 196: How can a developer lower the cost of a serverless application?
