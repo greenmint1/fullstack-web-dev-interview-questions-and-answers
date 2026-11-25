@@ -7,6 +7,8 @@ description: Create a markdown file of 450 interview questions and answers (150 
 
 Create one markdown file containing 450 interview questions and answers for the requested technology: 150 easy, 150 moderate, 150 advanced.
 
+If the user asks for a different count (for example "50 easy, 50 medium and 50 advanced"), use N per section instead of 150 everywhere below: sections become `(1-N)`, `(N+1-2N)`, `(2N+1-3N)` and the total is 3N. `toc.py` reads N from the `# Easy Questions (1-N)` header, so no flag or copy of the script is needed.
+
 ## Step 1: Pick the file location and name
 
 - Place the file in the folder that best matches the technology's category. All category folders live inside `docs/`. Category folders: `docs/front-end/`, `docs/back-end/`, `docs/ai-engineering/`, `docs/optimization/`, `docs/mix/`. Use `docs/mix/` only if nothing else fits. Create a new category folder only if the user asks, and always inside `docs/`.
@@ -17,7 +19,7 @@ Create one markdown file containing 450 interview questions and answers for the 
 - If a category has subcategories, put the file in the matching subfolder, never directly in the category folder. Use `other/` only if no other subcategory fits.
 - If the README gets a new subcategory (or a category gets subcategories for the first time), create the matching subfolder, move the files listed under it there, and update their README links so the folders and the README stay in sync.
 - Name the file in lowercase kebab-case: `dynamodb.md`, `react-unit-testing.md`, `redux-toolkit.md`.
-- Before writing, check whether the file already exists. If it does, ask the user whether to overwrite it or stop.
+- Before writing, check whether the file already exists with `wc -c <file>`. Empty (0-byte) or title-only files are placeholders created for TODO items: fill them without asking. If the file already has questions, ask the user whether to overwrite it or stop.
 - Always write in plain, simple words so the file doesn't read as AI-generated, even if the user doesn't ask. Avoid words like delve, crucial, leverage, seamless, comprehensive, furthermore, moreover, and em dashes. `toc.py` (Step 6) flags these, so don't write your own grep for them.
 - Steps 3-4 fully define the file format, so don't read whole files to learn it. To match tone, read only the first questions of one existing file (for example `grep -n -A12 '^## 1:' docs/front-end/frameworks/angular.md | head -40`). To find where the README entry goes, `grep` the README for the target `###`/`####` section instead of reading the whole file.
 
@@ -64,7 +66,7 @@ Answer text.
 Answer text, with a code example if useful.
 ```
 
-Table of contents anchors follow GitHub's heading slug rules: lowercase, drop every character that isn't a letter, number, underscore, hyphen or space, then turn each space into a hyphen. For example, `## 12: How does Object.groupBy work?` becomes `#12-how-does-objectgroupby-work`. Keep question headings free of backticks and markdown formatting so the link text and anchors stay clean. Avoid names wrapped in double underscores too: Prettier rewrites `__proto__` as `**proto**`, so write "the proto key" instead (a one-sided prefix like `__Host-` is fine). Square brackets (`[hidden]`, `[]`) are fine.
+Table of contents anchors follow GitHub's heading slug rules: lowercase, drop every character that isn't a letter, number, underscore, hyphen or space, then turn each space into a hyphen. For example, `## 12: How does Object.groupBy work?` becomes `#12-how-does-objectgroupby-work`. Keep question headings free of backticks and markdown formatting so the link text and anchors stay clean. Avoid names wrapped in double underscores too: Prettier rewrites `__proto__` as `**proto**`, so write "the proto key" instead (a one-sided prefix like `__Host-` is fine). The same goes for `*` and `**`: write "args and kwargs", not `*args and **kwargs`. Square brackets (`[hidden]`, `[]`) are fine.
 
 ## Step 5: Content rules
 
@@ -84,7 +86,7 @@ Table of contents anchors follow GitHub's heading slug rules: lowercase, drop ev
 
 1. Create the file with the title, intro, and the section links of the table of contents.
 2. Append the questions in batches of about 25-50, in numerical order, so the numbering stays continuous. Write each batch with the Write tool to a part file in the scratchpad (`part1.md`, `part2.md`, ...) and join them with `cat`. Don't put large content in `cat <<'EOF'` heredocs: this machine's bash 3.2 refuses or breaks on big heredocs containing backticks.
-3. Once all 450 questions are written, run `python3 .claude/skills/interview-qa/toc.py <file>`. It rebuilds the full table of contents (section links, per-section question links, `---`) and then verifies the file. Don't write your own TOC script.
+3. Once all questions are written, run `python3 .claude/skills/interview-qa/toc.py <file>` (it works for any per-section count; `--per-section N` forces one). It rebuilds the full table of contents (section links, per-section question links, `---`) and then verifies the file. Don't write your own TOC script.
 4. The same run verifies the file: `_Last updated_` line, exactly 450 questions numbered 1-450 with no gaps or duplicates, each in the right section, 450 question links in the TOC, every link pointing to an existing heading anchor, no backticks in headings, and all code blocks closed. Fix anything it reports and re-run until it prints `OK`. Use `--check` to verify without rebuilding.
 5. Report the file path and a one-line summary when done.
 
