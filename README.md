@@ -153,6 +153,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Rollup](docs/front-end/libs/rollup.md)
 - [RxJS](docs/front-end/libs/rxjs.md)
 - [Storybook](docs/front-end/libs/storybook.md)
+- [TanStack Query](docs/front-end/libs/tan-stack-query.md)
 - [Three.js](docs/front-end/libs/three-js.md)
 - [Webpack](docs/front-end/libs/webpack.md)
 - [Zustand](docs/front-end/libs/zustand.md)
