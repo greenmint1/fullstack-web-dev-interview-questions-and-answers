@@ -171,6 +171,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 ### Mix
 
+- [Blockchain](docs/mix/blockchain.md)
 - [CI/CD Pipelines](docs/mix/ci-cd-pipelines.md)
 - [Clean Code and SOLID](docs/mix/clean-code-and-solid.md)
 - [Code Review Practices](docs/mix/code-review-practices.md)
