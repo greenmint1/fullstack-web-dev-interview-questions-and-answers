@@ -1,6 +1,6 @@
 # Full Stack Web Dev Interview Questions and Answers
 
-_Last updated: November 25, 2026_
+_Last updated: November 26, 2026_
 
 A collection of interview questions and answers for full stack web developers. Each file covers one technology or topic and has questions split into three levels: easy, moderate and advanced.
 
@@ -75,6 +75,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 
 #### DB
 
+- [Comparing DBs](docs/back-end/db/comparing-dbs.md)
 - [DynamoDB](docs/back-end/db/dynamodb.md)
 - [DynamoDB DAX](docs/back-end/db/dynamodb-dax.md)
 - [MongoDB](docs/back-end/db/mongodb.md)
@@ -82,6 +83,7 @@ You can use it to prepare for interviews, to check what you know, or as a quick 
 - [Prisma ORM](docs/back-end/db/prisma-orm.md)
 - [Redis](docs/back-end/db/redis.md)
 - [SQL](docs/back-end/db/sql.md)
+- [Translate MongoDB into SQL, BigQuery, Redis, Snowflake, DynamoDB, Firebase and Elasticsearch](docs/back-end/db/translate-mongodb-into-sql-bigquery-redis-snowflake-dynamodb-firebase-elasticsearch.md)
 
 #### Languages
 
